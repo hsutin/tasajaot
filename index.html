@@ -93,7 +93,7 @@
 				<li><strong>Pelipaikat:</strong> <code>P</code> puolustaja, <code>H</code> hyökkääjä, <code>PH</code> puolustaja joka voi pelata hyökkääjänä, <code>HP</code> hyökkääjä joka voi pelata puolustajana.</li>
 				<li><strong>Rating:</strong> 1–5, puolikkaat sallittu. Vain adminit näkevät ratingit.</li>
 				<li><strong>Korjaus:</strong> Arviot muuttavat korjausarvoa automaattisesti, enintään 0,10 vuorossa. Arvonta käyttää lukua rating + korjaus.</li>
-				<li><strong>Muokkaus:</strong> Muuta tietoja välilehdellä <em>Pelaajat</em> ja valitse rivin <em>Tallenna</em>.</li>
+				<li><strong>Muokkaus:</strong> Muuta tietoja välilehdellä <em>Pelaajat</em>. Voit muuttaa monta pelaajaa kerralla. Valitse lopuksi <em>Tallenna muutokset</em>.</li>
 				<li><strong>Excel-tuonti:</strong> Sarakkeet <code>nimi</code>, <code>pelipaikka</code> ja <code>rating</code>. Sovellus päivittää samannimiset pelaajat ja lisää uudet. Se ei poista pelaajia.</li>
 				<li><strong>Poisto:</strong> Pelaajan poisto ei muuta vanhoja arvontoja.</li>
 			</ul>
@@ -344,11 +344,17 @@
 						<tbody id="players-table-body"></tbody>
 					</table>
 				</div>
+				<div id="players-save-bar" class="save-bar" hidden>
+					<p id="players-changes" class="save-bar__text" role="status" aria-live="polite"></p>
+					<div class="actions">
+						<button id="cancel-player-edits" class="button button--ghost button--small" type="button">Peru muutokset</button>
+						<button id="save-players" class="button button--small" type="button">Tallenna muutokset</button>
+					</div>
+				</div>
 			</section>
 		</section>
 	</main>
 
-	<!-- TODO: Replace the values in [brackets] with the real data before publication. -->
 	<footer class="site-footer">
 		<div class="container site-footer__inner">
 			<section class="site-footer__column" aria-labelledby="footer-club-title">
@@ -378,7 +384,9 @@
 				</ul>
 			</nav>
 		</div>
-		<p class="container site-footer__bottom">© <span id="footer-year">2026</span> Seminaarinmäen Senators · Tasajaot</p>
+		<div class="container">
+			<p class="site-footer__bottom">© <span id="footer-year">2026</span> Seminaarinmäen Senators · Tasajaot</p>
+		</div>
 	</footer>
 </body>
 </html>

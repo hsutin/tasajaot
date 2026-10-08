@@ -69,6 +69,10 @@ const elements = Object.fromEntries(
 		'add-player-form',
 		'player-message',
 		'players-table-body',
+		'players-save-bar',
+		'players-changes',
+		'save-players',
+		'cancel-player-edits',
 	].map( ( id ) => [ id.replace( /-([a-z])/g, ( match, letter ) => letter.toUpperCase() ), document.getElementById( id ) ] )
 );
 
@@ -78,6 +82,8 @@ const state = {
 	draws: [],
 	// Evaluations by draw id. Only admins can read them.
 	evaluations: new Map(),
+	// Unsaved changes in the player table by player id. They stay when the table renders again.
+	playerEdits: new Map(),
 	currentDraw: null,
 	selectedIds: new Set( loadSelection() ),
 	weekTaken: false,
@@ -426,6 +432,11 @@ async function loadPlayers() {
 	// Removes deleted players from the saved selection.
 	const ids = new Set( state.players.map( ( player ) => player.id ) );
 	state.selectedIds = new Set( [ ...state.selectedIds ].filter( ( id ) => ids.has( id ) ) );
+	for ( const id of state.playerEdits.keys() ) {
+		if ( ! ids.has( id ) ) {
+			state.playerEdits.delete( id );
+		}
+	}
 
 	renderChecklist();
 	renderPlayersTable();
@@ -506,20 +517,40 @@ function setAllSelected( selected ) {
 	renderChecklist();
 }
 
+function playerValues( player ) {
+	return { name: player.name, position: player.position, rating: String( player.rating ) };
+}
+
+function isSameValues( first, second ) {
+	return (
+		normalizeName( first.name ) === normalizeName( second.name ) &&
+		first.position === second.position &&
+		Number( first.rating ) === Number( second.rating )
+	);
+}
+
+function updatePlayersSaveBar() {
+	const count = state.playerEdits.size;
+	elements.playersSaveBar.hidden = count === 0;
+	elements.playersChanges.textContent =
+		count === 1 ? '1 pelaajan muutos on tallentamatta.' : `${ count } pelaajan muutokset ovat tallentamatta.`;
+}
+
 function renderPlayersTable() {
 	const rows = state.players.map( ( player ) => {
+		const values = state.playerEdits.get( player.id ) ?? playerValues( player );
 		const nameInput = createElement( 'input', {
 			type: 'text',
-			value: player.name,
+			value: values.name,
 			maxLength: 80,
 			required: true,
-			'aria-label': 'Nimi',
+			'aria-label': `Nimi: ${ player.name }`,
 		} );
 		const positionSelect = createElement(
 			'select',
 			{ 'aria-label': `Pelipaikka: ${ player.name }` },
 			POSITIONS.map( ( position ) =>
-				createElement( 'option', { value: position, text: position, selected: position === player.position } )
+				createElement( 'option', { value: position, text: position, selected: position === values.position } )
 			)
 		);
 		const ratingInput = createElement( 'input', {
@@ -527,14 +558,9 @@ function renderPlayersTable() {
 			min: '1',
 			max: '5',
 			step: '0.5',
-			value: String( player.rating ),
+			value: values.rating,
 			required: true,
 			'aria-label': `Rating: ${ player.name }`,
-		} );
-		const saveButton = createElement( 'button', {
-			type: 'button',
-			className: 'button button--small',
-			text: 'Tallenna',
 		} );
 		const deleteButton = createElement( 'button', {
 			type: 'button',
@@ -542,15 +568,22 @@ function renderPlayersTable() {
 			text: 'Poista',
 			'aria-label': `Poista ${ player.name }`,
 		} );
-
-		saveButton.addEventListener( 'click', () =>
-			savePlayer( player.id, {
-				name: nameInput.value,
-				position: positionSelect.value,
-				rating: ratingInput.value,
-			} )
-		);
 		deleteButton.addEventListener( 'click', () => deletePlayer( player ) );
+
+		const row = createElement( 'tr', {} );
+		const onEdit = () => {
+			const edited = { name: nameInput.value, position: positionSelect.value, rating: ratingInput.value };
+			if ( isSameValues( edited, playerValues( player ) ) ) {
+				state.playerEdits.delete( player.id );
+			} else {
+				state.playerEdits.set( player.id, edited );
+			}
+			row.classList.toggle( 'is-changed', state.playerEdits.has( player.id ) );
+			updatePlayersSaveBar();
+		};
+		nameInput.addEventListener( 'input', onEdit );
+		positionSelect.addEventListener( 'change', onEdit );
+		ratingInput.addEventListener( 'input', onEdit );
 
 		const adjustmentCell = createElement( 'td', { className: 'players-table__adjustment' }, [
 			createElement( 'span', {
@@ -569,15 +602,18 @@ function renderPlayersTable() {
 			adjustmentCell.append( ' ', resetButton );
 		}
 
-		return createElement( 'tr', {}, [
+		row.classList.toggle( 'is-changed', state.playerEdits.has( player.id ) );
+		row.append(
 			createElement( 'td', {}, [ nameInput ] ),
 			createElement( 'td', {}, [ positionSelect ] ),
 			createElement( 'td', {}, [ ratingInput ] ),
 			adjustmentCell,
-			createElement( 'td', { className: 'players-table__actions' }, [ saveButton, deleteButton ] ),
-		] );
+			createElement( 'td', { className: 'players-table__actions' }, [ deleteButton ] )
+		);
+		return row;
 	} );
 	elements.playersTableBody.replaceChildren( ...rows );
+	updatePlayersSaveBar();
 }
 
 function validatePlayerInput( input ) {
@@ -624,19 +660,58 @@ async function addPlayer( event ) {
 	await loadPlayers();
 }
 
-async function savePlayer( id, input ) {
-	const { player, error: validationError } = validatePlayerInput( input );
-	if ( validationError ) {
-		showMessage( elements.playerMessage, validationError, 'error' );
+// Validates all changes first. If one change is not valid, nothing is saved.
+async function saveAllPlayers() {
+	const changes = [];
+	for ( const [ id, input ] of state.playerEdits ) {
+		const original = state.players.find( ( player ) => player.id === id );
+		const { player, error } = validatePlayerInput( input );
+		if ( error ) {
+			showMessage( elements.playerMessage, `${ original?.name ?? input.name }: ${ error }`, 'error' );
+			return;
+		}
+		changes.push( { id, player } );
+	}
+	if ( changes.length === 0 ) {
 		return;
 	}
-	const { error } = await supabase.from( 'players' ).update( player ).eq( 'id', id );
-	if ( error ) {
-		showMessage( elements.playerMessage, databaseErrorText( error ), 'error' );
-		return;
+
+	elements.savePlayers.disabled = true;
+	showMessage( elements.playerMessage, 'Tallennetaan…' );
+
+	const results = await Promise.all(
+		changes.map( async ( { id, player } ) => {
+			const { error } = await supabase.from( 'players' ).update( player ).eq( 'id', id );
+			return { id, player, error };
+		} )
+	);
+
+	// Saved changes leave the list. Failed changes stay, so the user can correct them and save again.
+	const failed = results.filter( ( result ) => result.error );
+	for ( const result of results ) {
+		if ( ! result.error ) {
+			state.playerEdits.delete( result.id );
+		}
 	}
-	showMessage( elements.playerMessage, `Pelaaja ${ player.name } tallennettu.`, 'success' );
+
+	elements.savePlayers.disabled = false;
+	if ( failed.length > 0 ) {
+		const details = failed.map( ( result ) => `${ result.player.name }: ${ databaseErrorText( result.error ) }` );
+		showMessage(
+			elements.playerMessage,
+			`Tallennettiin ${ results.length - failed.length } / ${ results.length }. ${ details.join( ' ' ) }`,
+			'error'
+		);
+	} else {
+		showMessage( elements.playerMessage, `Tallennettiin ${ results.length } pelaajan muutokset.`, 'success' );
+	}
 	await loadPlayers();
+}
+
+function cancelPlayerEdits() {
+	state.playerEdits.clear();
+	showMessage( elements.playerMessage, '' );
+	renderPlayersTable();
 }
 
 async function resetAdjustment( player ) {
@@ -872,6 +947,16 @@ function bindEvents() {
 
 	elements.importFile.addEventListener( 'change', importPlayers );
 	elements.addPlayerForm.addEventListener( 'submit', addPlayer );
+	elements.savePlayers.addEventListener( 'click', saveAllPlayers );
+	elements.cancelPlayerEdits.addEventListener( 'click', cancelPlayerEdits );
+
+	// The browser asks before it closes the page, if player changes are not saved.
+	window.addEventListener( 'beforeunload', ( event ) => {
+		if ( state.playerEdits.size > 0 ) {
+			event.preventDefault();
+			event.returnValue = '';
+		}
+	} );
 }
 
 async function start() {

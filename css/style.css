@@ -766,9 +766,9 @@ select {
 	margin-top: 8px;
 }
 
-.site-footer__bottom {
-	padding-top: var(--space);
-	padding-bottom: var(--space);
+.site-footer .site-footer__bottom {
+	margin: 0;
+	padding: var(--space) 0;
 	border-top: 1px solid var(--color-border);
 	font-size: 0.85rem;
 }
@@ -781,4 +781,42 @@ body {
 
 main {
 	flex: 1 0 auto;
+}
+
+/* Unsaved player changes */
+
+.players-table tr.is-changed td:first-child {
+	box-shadow: inset 4px 0 0 var(--color-accent);
+}
+
+.players-table tr.is-changed input,
+.players-table tr.is-changed select {
+	border-color: var(--color-accent);
+}
+
+/* The bar stays visible at the bottom of the window while there are unsaved changes. */
+.save-bar {
+	display: flex;
+	position: sticky;
+	bottom: 0;
+	z-index: 5;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: var(--space);
+	padding: 12px var(--space);
+	border: 2px solid var(--color-accent);
+	border-radius: 10px;
+	background: var(--color-surface);
+	box-shadow: 0 -8px 24px rgb(0 0 0 / 0.35);
+}
+
+.save-bar .actions {
+	margin-top: 0;
+}
+
+.save-bar__text {
+	margin: 0;
+	font-weight: 600;
 }
