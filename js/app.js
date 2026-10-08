@@ -25,7 +25,8 @@ const EVALUATION_LABELS = {
 const elements = Object.fromEntries(
 	[
 		'setup-notice',
-		'admin-nav',
+		'site-nav',
+		'info-view',
 		'help-view',
 		'faq-view',
 		'draw-view',
@@ -856,14 +857,19 @@ async function runDraw() {
 
 // ---------- Admin pages ----------
 
-const ADMIN_PAGES = { ohjeet: 'helpView', ukk: 'faqView' };
+// "public" pages are for users who are not admins. "admin" pages are only for admins.
+const PAGES = {
+	tietoa: { element: 'infoView', audience: 'public' },
+	ohjeet: { element: 'helpView', audience: 'admin' },
+	ukk: { element: 'faqView', audience: 'admin' },
+};
 const HOME_ROUTE = 'etusivu';
 let currentRoute = HOME_ROUTE;
 
 // Other hash values (for example the skip link "#main") do not change the page.
 function routeFromHash() {
 	const hash = window.location.hash.slice( 1 );
-	if ( hash === '' || hash === HOME_ROUTE || hash in ADMIN_PAGES ) {
+	if ( hash === '' || hash === HOME_ROUTE || hash in PAGES ) {
 		currentRoute = hash || HOME_ROUTE;
 	}
 	return currentRoute;
@@ -871,17 +877,20 @@ function routeFromHash() {
 
 function renderRoute() {
 	const route = routeFromHash();
-	// The guide pages are only for admins. Other users always see the teams.
-	const page = state.isAdmin && route in ADMIN_PAGES ? route : HOME_ROUTE;
+	const audience = state.isAdmin ? 'admin' : 'public';
+	// A page for the other audience shows the teams.
+	const page = PAGES[ route ]?.audience === audience ? route : HOME_ROUTE;
 
-	elements.adminNav.hidden = ! state.isAdmin;
-	for ( const [ pageRoute, elementName ] of Object.entries( ADMIN_PAGES ) ) {
-		elements[ elementName ].hidden = page !== pageRoute;
+	for ( const [ pageRoute, { element } ] of Object.entries( PAGES ) ) {
+		elements[ element ].hidden = page !== pageRoute;
 	}
 	elements.drawView.hidden = page !== HOME_ROUTE;
 	elements.adminView.hidden = ! state.isAdmin || page !== HOME_ROUTE;
 
-	for ( const link of elements.adminNav.querySelectorAll( '[data-route]' ) ) {
+	for ( const link of elements.siteNav.querySelectorAll( '[data-audience]' ) ) {
+		link.hidden = link.dataset.audience !== audience;
+	}
+	for ( const link of elements.siteNav.querySelectorAll( '[data-route]' ) ) {
 		if ( link.dataset.route === page ) {
 			link.setAttribute( 'aria-current', 'page' );
 		} else {

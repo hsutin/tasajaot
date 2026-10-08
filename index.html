@@ -26,10 +26,11 @@
 					<h1 class="brand__title">Tasajaot</h1>
 				</div>
 			</div>
-			<nav id="admin-nav" class="admin-nav" aria-label="Adminin sivut" hidden>
+			<nav id="site-nav" class="admin-nav" aria-label="Sivut">
 				<a class="admin-nav__link" href="#etusivu" data-route="etusivu">Joukkueet</a>
-				<a class="admin-nav__link" href="#ohjeet" data-route="ohjeet">Ohjeet</a>
-				<a class="admin-nav__link" href="#ukk" data-route="ukk">UKK</a>
+				<a class="admin-nav__link" href="#tietoa" data-route="tietoa" data-audience="public">Näin jaot tehdään</a>
+				<a class="admin-nav__link" href="#ohjeet" data-route="ohjeet" data-audience="admin" hidden>Ohjeet</a>
+				<a class="admin-nav__link" href="#ukk" data-route="ukk" data-audience="admin" hidden>UKK</a>
 			</nav>
 			<div class="site-header__auth">
 				<span id="user-email" class="muted" hidden></span>
@@ -59,6 +60,58 @@
 				<button class="button" type="submit">Kirjaudu</button>
 				<p id="login-message" class="message" role="status" aria-live="polite"></p>
 			</form>
+		</section>
+
+		<section id="info-view" class="card guide" aria-labelledby="info-title" hidden>
+			<h2 id="info-title">Näin joukkueet arvotaan</h2>
+			<p class="muted">Lyhyt selitys pelaajille. Tarkka kuvaus on <a href="https://github.com/hsutin/tasajaot#readme">sovelluksen README:ssä</a>.</p>
+
+			<h3>Lyhyesti</h3>
+			<ul>
+				<li>Jokaisella pelaajalla on pelipaikka ja taso.</li>
+				<li>Sovellus tekee satoja eri jakoja ja arpoo yhden tasaisimpien joukosta. Siksi joukkueet vaihtuvat joka viikko.</li>
+				<li>Puolustusten ja hyökkäysten pitää olla yhtä vahvat. Vahva puolustus ei voi korvata heikkoa hyökkäystä.</li>
+				<li>Joukkueet arvotaan vain kerran viikossa. Kukaan ei voi arpoa uudelleen.</li>
+				<li>Maalivahdit eivät ole mukana arvonnassa, koska he vaihtavat päätyä.</li>
+			</ul>
+
+			<h3>Pelipaikat</h3>
+			<ul>
+				<li><code>P</code> puolustaja ja <code>H</code> hyökkääjä</li>
+				<li><code>PH</code> puolustaja, joka voi pelata myös hyökkääjänä</li>
+				<li><code>HP</code> hyökkääjä, joka voi pelata myös puolustajana</li>
+			</ul>
+			<p>PH- ja HP-pelaajat pelaavat ensisijaisella paikallaan. Sovellus siirtää heidät toiselle paikalle vain, jos puolustajia tai hyökkääjiä puuttuu.</p>
+
+			<h3>Joukkueiden koko</h3>
+			<p>Joukkueessa on enintään 4 puolustajaa ja 6 hyökkääjää. Puolustajamme ovat hyvässä kunnossa, joten vajaassa vuorossa puolustajia on 3 joukkuetta kohti.</p>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr>
+							<th scope="col">Pelaajia</th>
+							<th scope="col">Puolustajia</th>
+							<th scope="col">Hyökkääjiä</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><td>20</td><td>4 + 4</td><td>6 + 6</td></tr>
+						<tr><td>19</td><td>4 + 3</td><td>6 + 6</td></tr>
+						<tr><td>18</td><td>3 + 3</td><td>6 + 6</td></tr>
+						<tr><td>17</td><td>3 + 3</td><td>6 + 5</td></tr>
+						<tr><td>16</td><td>3 + 3</td><td>5 + 5</td></tr>
+						<tr><td>15</td><td>3 + 3</td><td>5 + 4</td></tr>
+						<tr><td>14</td><td>3 + 3</td><td>4 + 4</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<p>Jos pelaajia on pariton määrä, sovellus arpoo, kumpi joukkue saa yhden pelaajan enemmän.</p>
+
+			<h3>Tasoa tarkennetaan vuorojen jälkeen</h3>
+			<p>Vuoron jälkeen admin arvioi, oliko jako tasainen. Jos toinen joukkue oli selvästi parempi, sen pelaajien taso nousee hieman ja toisen joukkueen taso laskee hieman. Yksi vuoro muuttaa tasoa vain vähän, joten yksittäinen ilta ei ratkaise mitään. Monen viikon jälkeen jaot tarkentuvat.</p>
+
+			<h3>Kuka näkee mitä</h3>
+			<p>Kaikki näkevät arvotut joukkueet. Pelaajien tasot ja vuorojen arviot näkevät vain adminit.</p>
 		</section>
 
 		<section id="help-view" class="card guide" aria-labelledby="help-title" hidden>

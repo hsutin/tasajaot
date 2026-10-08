@@ -826,3 +826,22 @@ main {
 	margin: 0;
 	font-weight: 600;
 }
+
+/* Table on the info page */
+
+.info-table {
+	width: 100%;
+	max-width: 420px;
+	border-collapse: collapse;
+}
+
+.info-table th,
+.info-table td {
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--color-border);
+	text-align: left;
+}
+
+.info-table th {
+	color: var(--color-text);
+}
