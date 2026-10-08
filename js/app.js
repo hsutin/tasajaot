@@ -875,6 +875,7 @@ function bindEvents() {
 }
 
 async function start() {
+	document.getElementById( 'footer-year' ).textContent = String( new Date().getFullYear() );
 	prepareImageAssets();
 
 	if ( ! SUPABASE_URL || ! SUPABASE_KEY ) {

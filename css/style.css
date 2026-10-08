@@ -698,3 +698,87 @@ select {
 .guide details > :not(summary) {
 	margin-top: 0;
 }
+
+/* Footer */
+
+.site-footer {
+	margin-top: calc(var(--space) * 3);
+	border-top: 3px solid var(--color-accent);
+	color: var(--color-muted);
+	font-size: 0.95rem;
+	background: var(--color-surface);
+}
+
+.site-footer__inner {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: calc(var(--space) * 1.5);
+	padding-top: calc(var(--space) * 2);
+	padding-bottom: calc(var(--space) * 1.5);
+}
+
+@media (min-width: 720px) {
+	.site-footer__inner {
+		grid-template-columns: 2fr 1fr 1fr;
+	}
+}
+
+.site-footer h2 {
+	margin-bottom: 12px;
+	color: var(--color-text);
+	font-size: 1.1rem;
+}
+
+.site-footer p {
+	margin: 0 0 8px;
+}
+
+.site-footer a {
+	color: var(--color-accent);
+}
+
+.site-footer a:hover {
+	color: var(--color-text);
+}
+
+.site-footer__brand {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.site-footer__brand img {
+	border-radius: 50%;
+}
+
+.site-footer__brand h2 {
+	margin: 0;
+}
+
+.site-footer__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.site-footer__list li + li {
+	margin-top: 8px;
+}
+
+.site-footer__bottom {
+	padding-top: var(--space);
+	padding-bottom: var(--space);
+	border-top: 1px solid var(--color-border);
+	font-size: 0.85rem;
+}
+
+/* Keeps the footer at the bottom of the window on short pages. */
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+main {
+	flex: 1 0 auto;
+}
