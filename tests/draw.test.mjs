@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { drawTeams, lineTargets, canPlay, normalizePosition } from '../js/draw.js';
+import { drawTeams, lineTargets, wantedDefenders, canPlay, normalizePosition } from '../js/draw.js';
 
 // Deterministic random generator, so a failed test gives the same result again.
 function seededRandom( seed ) {
@@ -73,6 +73,43 @@ test( 'an odd player count gives one team 1 more player', () => {
 	assert.deepEqual( sizes, [ 9, 10 ] );
 	assert.ok( Math.abs( roleCount( result.white, 'D' ) - roleCount( result.black, 'D' ) ) <= 1 );
 	assert.ok( Math.abs( roleCount( result.white, 'F' ) - roleCount( result.black, 'F' ) ) <= 1 );
+} );
+
+test( 'the shift rules give the defender count per team', () => {
+	assert.equal( wantedDefenders( 20 ), 8 );
+	assert.equal( wantedDefenders( 19 ), 7 );
+	for ( let playerCount = 14; playerCount <= 18; playerCount++ ) {
+		assert.equal( wantedDefenders( playerCount ), 6, `${ playerCount } players` );
+	}
+	assert.equal( wantedDefenders( 12 ), 5 );
+} );
+
+test( 'a team never has more than 4 defenders or 6 forwards', () => {
+	for ( let playerCount = 14; playerCount <= 20; playerCount++ ) {
+		const random = seededRandom( playerCount * 7 );
+		const result = drawTeams( makePlayers( FULL_SHIFT.slice( 20 - playerCount ), random ), { random } );
+		for ( const team of [ result.white, result.black ] ) {
+			assert.ok( roleCount( team, 'D' ) <= 4, `${ playerCount } players: too many defenders` );
+			assert.ok( roleCount( team, 'F' ) <= 6, `${ playerCount } players: too many forwards` );
+		}
+	}
+} );
+
+test( 'more than 20 players is an error', () => {
+	const random = seededRandom( 1 );
+	assert.throws( () => drawTeams( makePlayers( [ ...FULL_SHIFT, 'H' ], random ), { random } ) );
+} );
+
+test( 'teams of 14–18 players get 3 defenders per team', () => {
+	for ( let playerCount = 14; playerCount <= 18; playerCount++ ) {
+		// 5 pure defenders and 3 flexible players. One flexible player must play defence.
+		const positions = [ ...Array( 5 ).fill( 'P' ), 'PH', 'HP', 'HP', ...Array( playerCount - 8 ).fill( 'H' ) ];
+		const random = seededRandom( playerCount );
+		const result = drawTeams( makePlayers( positions, random ), { random } );
+		assert.equal( roleCount( result.white, 'D' ), 3, `${ playerCount } players, white` );
+		assert.equal( roleCount( result.black, 'D' ), 3, `${ playerCount } players, black` );
+		assert.ok( Math.abs( result.white.length - result.black.length ) <= 1 );
+	}
 } );
 
 test( 'flexible players fill the missing defender places', () => {

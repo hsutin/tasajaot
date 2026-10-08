@@ -12,8 +12,27 @@ const WEIGHT_TOTAL = 4;
 const WEIGHT_LINE = 10;
 const WEIGHT_SECONDARY_ROLE = 1;
 
-// Share of defenders in a full shift: 8 defenders of 20 players (4 + 4 and 6 + 6).
-const DEFENCE_SHARE = 0.4;
+// The shift has a maximum of 20 players: 4 defenders and 6 forwards per team.
+export const MAX_PLAYERS = 20;
+const MAX_FORWARDS_PER_TEAM = 6;
+
+/**
+ * Number of defenders in the shift (both teams together).
+ *
+ * The rules of the shift:
+ * - A team has a maximum of 4 defenders and 6 forwards.
+ * - 20 players: 4 + 4 defenders.
+ * - 19 players: 3 + 4 defenders, because a team cannot have more than 6 forwards.
+ * - 14–18 players: 3 + 3 defenders. The forwards decrease.
+ *   The defenders are in good condition and fast skaters, so 3 defenders per team are enough.
+ * - Fewer than 14 players: about 40 % of the players are defenders.
+ */
+export function wantedDefenders( playerCount ) {
+	if ( playerCount >= 14 ) {
+		return Math.max( 6, playerCount - MAX_FORWARDS_PER_TEAM * 2 );
+	}
+	return Math.round( playerCount * 0.4 );
+}
 
 export function canPlay( position, role ) {
 	if ( position === 'P' ) {
@@ -49,6 +68,9 @@ function validatePlayers( players ) {
 	if ( players.length < 2 ) {
 		throw new Error( 'Valitse vähintään 2 pelaajaa.' );
 	}
+	if ( players.length > MAX_PLAYERS ) {
+		throw new Error( `Vuorossa voi olla enintään ${ MAX_PLAYERS } pelaajaa.` );
+	}
 	for ( const player of players ) {
 		if ( ! POSITIONS.includes( player.position ) ) {
 			throw new Error( `Pelaajalla ${ player.name } on virheellinen pelipaikka.` );
@@ -65,8 +87,12 @@ export function lineTargets( players ) {
 	const pureDefenders = players.filter( ( player ) => player.position === 'P' ).length;
 	const pureForwards = players.filter( ( player ) => player.position === 'H' ).length;
 
-	const wantedDefenders = Math.round( playerCount * DEFENCE_SHARE );
-	const defenders = Math.min( Math.max( wantedDefenders, pureDefenders ), playerCount - pureForwards );
+	// Pure defenders (P) cannot play as forwards and pure forwards (H) cannot play as defenders.
+	// Thus the number of these players can move the target.
+	const defenders = Math.min(
+		Math.max( wantedDefenders( playerCount ), pureDefenders ),
+		playerCount - pureForwards
+	);
 
 	// Team 0 is the larger team when the player count is odd.
 	const teamSizes = [ Math.ceil( playerCount / 2 ), Math.floor( playerCount / 2 ) ];

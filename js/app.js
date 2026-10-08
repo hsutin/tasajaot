@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
-import { drawTeams, lineTargets, POSITIONS } from './draw.js';
+import { drawTeams, lineTargets, wantedDefenders, MAX_PLAYERS, POSITIONS } from './draw.js';
 import { renderTeamsImage, shareCanvas, downloadCanvas, formatDate, prepareImageAssets, ROLE_LABELS } from './image.js';
 import { readPlayersFile, normalizeName, parseRating } from './excel.js';
 
@@ -494,12 +494,16 @@ function renderSelectionSummary() {
 	).join( ' · ' );
 
 	let text = `Valittu ${ players.length } pelaajaa (${ counts }).`;
-	if ( players.length >= 2 ) {
+	if ( players.length > MAX_PLAYERS ) {
+		text += ` Vuorossa voi olla enintään ${ MAX_PLAYERS } pelaajaa. Poista ${ players.length - MAX_PLAYERS } valinta${
+			players.length - MAX_PLAYERS === 1 ? '' : 'a'
+		}.`;
+	} else if ( players.length >= 2 ) {
 		const targets = lineTargets( players );
 		const [ bigTeam, smallTeam ] = targets.teamSizes;
 		const split = targets.splits[ 0 ].defenders;
 		text += ` Joukkueet: ${ bigTeam } + ${ smallTeam } pelaajaa, puolustajia ${ split[ 0 ] } + ${ split[ 1 ] }.`;
-		if ( targets.defenders !== Math.round( players.length * 0.4 ) ) {
+		if ( targets.defenders !== wantedDefenders( players.length ) ) {
 			text += ' Huom: puolustajia tai hyökkääjiä on liian vähän tasaiseen jakoon.';
 		}
 	}
@@ -508,7 +512,9 @@ function renderSelectionSummary() {
 }
 
 function updateDrawButton() {
-	elements.drawButton.disabled = state.weekTaken || selectedPlayers().length < 2 || ! elements.gameDate.value;
+	const playerCount = selectedPlayers().length;
+	elements.drawButton.disabled =
+		state.weekTaken || playerCount < 2 || playerCount > MAX_PLAYERS || ! elements.gameDate.value;
 }
 
 function setAllSelected( selected ) {

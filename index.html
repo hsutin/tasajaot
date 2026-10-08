@@ -77,7 +77,7 @@
 				<li>Viikon voi arpoa vain kerran. Tarkista päivä ja pelaajat ennen arvontaa.</li>
 				<li>Sovellus muistaa edellisen viikon valinnat tässä selaimessa. Poista poissa olevat pelaajat ja vierailijat valinnoista.</li>
 				<li>Valintojen yläpuolella näkyy joukkueiden koko ja puolustajien määrä. Tarkista se ennen arvontaa.</li>
-				<li>Täydessä vuorossa (20 pelaajaa) joukkueissa on 4 puolustajaa ja 6 hyökkääjää. Maalivahteja ei arvota.</li>
+				<li>Täydessä vuorossa (20 pelaajaa) joukkueissa on 4 puolustajaa ja 6 hyökkääjää. Kun pelaajia on 19, puolustajia on 4 + 3. Kun pelaajia on 14–18, joukkueissa on 3 puolustajaa. Vuorossa voi olla enintään 20 kenttäpelaajaa. Maalivahteja ei arvota.</li>
 			</ul>
 
 			<h3>Arvio vuoron jälkeen</h3>
@@ -138,7 +138,8 @@
 			</details>
 			<details>
 				<summary>Joukkueissa ei ole 4 puolustajaa ja 6 hyökkääjää. Miksi?</summary>
-				<p>Jako 4 + 6 on mahdollinen vain, kun pelaajia on 20. Vajaassa vuorossa noin 40 % pelaajista pelaa puolustajina. Jos puolustajia tai hyökkääjiä on liian vähän, sovellus siirtää PH- ja HP-pelaajia. Jos niitäkään ei ole tarpeeksi, yhteenvedossa näkyy varoitus.</p>
+				<p>Jako 4 + 6 on käytössä vain, kun pelaajia on 20. Joukkueessa on aina enintään 4 puolustajaa ja 6 hyökkääjää. Siksi 19 pelaajan vuorossa puolustajia on 4 + 3. Kun pelaajia on 14–18, kummassakin joukkueessa on 3 puolustajaa, ja kaikki muut ovat hyökkääjiä. Alle 14 pelaajan vuorossa noin 40 % pelaajista pelaa puolustajina.</p>
+				<p>Jos puolustajia tai hyökkääjiä on liian vähän, sovellus siirtää PH- ja HP-pelaajia. Jos niitäkään ei ole tarpeeksi, yhteenvedossa näkyy varoitus. Jos P-pelaajia on enemmän kuin puolustajapaikkoja, kaikki P-pelaajat pelaavat silti puolustajina.</p>
 			</details>
 
 			<h3>Vierailijat</h3>

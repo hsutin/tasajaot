@@ -27,19 +27,26 @@ Maalivahdit eivät ole mukana arvonnassa, koska he vaihtavat päätyä vuoron ai
 
 ## Joukkueiden koko ja kentät
 
-**Täysi vuoro (20 kenttäpelaajaa):** Kummassakin joukkueessa on 4 puolustajaa ja 6 hyökkääjää.
+**Täysi vuoro (20 kenttäpelaajaa):** Kummassakin joukkueessa on 4 puolustajaa ja 6 hyökkääjää. Vuorossa voi olla enintään 20 kenttäpelaajaa, joten joukkueessa on aina enintään 4 puolustajaa ja 6 hyökkääjää.
 
 **Vajaa vuoro:**
 - Joukkueissa on yhtä monta pelaajaa. Jos pelaajia on pariton määrä, toinen joukkue saa yhden pelaajan enemmän. Sovellus arpoo, kumpi joukkue.
-- Noin 40 % pelaajista pelaa puolustajina, kuten täydessä vuorossa (8 / 20).
-- Puolustajien määrä on joukkueissa sama tai eroaa enintään yhdellä. Sama sääntö koskee hyökkääjiä.
+- Kun pelaajia on 19, puolustajia on 4 + 3, jotta kummassakin joukkueessa on enintään 6 hyökkääjää.
+- Kun pelaajia on 14–18, kummassakin joukkueessa on **3 puolustajaa**, ja kaikki muut pelaajat ovat hyökkääjiä. Vajaassa vuorossa sovellus vähentää siis ensin puolustajia ja sitten hyökkääjiä, 1–2 joukkuetta kohti.
+- Syy: puolustajamme ovat yleensä hyvässä kunnossa ja kovia luistelijoita. Siksi kolme puolustajaa riittää.
+- Jos pelaajia on alle 14, noin 40 % pelaajista pelaa puolustajina.
 
 | Pelaajia | Joukkueet | Puolustajia | Hyökkääjiä |
 |---|---|---|---|
 | 20 | 10 + 10 | 4 + 4 | 6 + 6 |
-| 19 | 10 + 9 | 4 + 4 | 6 + 5 |
-| 18 | 9 + 9 | 4 + 3 | 5 + 6 |
+| 19 | 10 + 9 | 4 + 3 | 6 + 6 |
+| 18 | 9 + 9 | 3 + 3 | 6 + 6 |
+| 17 | 9 + 8 | 3 + 3 | 6 + 5 |
 | 16 | 8 + 8 | 3 + 3 | 5 + 5 |
+| 15 | 8 + 7 | 3 + 3 | 5 + 4 |
+| 14 | 7 + 7 | 3 + 3 | 4 + 4 |
+
+**Puhtaat pelipaikat menevät sääntöjen edelle:** P-pelaaja pelaa aina puolustajana, ja H-pelaaja pelaa aina hyökkääjänä. Jos esimerkiksi 18 pelaajan vuorossa on 7 P-pelaajaa, puolustajia on 7, ja toisessa joukkueessa on 4 puolustajaa.
 
 **Kaksi pelipaikkaa (PH ja HP):** Pelaaja pelaa ensin ensisijaisella paikallaan. Jos puolustajia tai hyökkääjiä puuttuu, sovellus siirtää PH- tai HP-pelaajan toiselle paikalle. Sovellus siirtää vain niin monta pelaajaa kuin on pakko.
 
