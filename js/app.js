@@ -25,6 +25,10 @@ const EVALUATION_LABELS = {
 const elements = Object.fromEntries(
 	[
 		'setup-notice',
+		'admin-nav',
+		'help-view',
+		'faq-view',
+		'draw-view',
 		'login-toggle',
 		'logout-button',
 		'user-email',
@@ -374,7 +378,7 @@ async function updateSession( session ) {
 		state.isAdmin = Boolean( data );
 	}
 
-	elements.adminView.hidden = ! state.isAdmin;
+	renderRoute();
 	await loadEvaluations();
 	if ( state.isAdmin ) {
 		await loadPlayers();
@@ -763,6 +767,50 @@ async function runDraw() {
 	}
 }
 
+// ---------- Admin pages ----------
+
+const ADMIN_PAGES = { ohjeet: 'helpView', ukk: 'faqView' };
+const HOME_ROUTE = 'etusivu';
+let currentRoute = HOME_ROUTE;
+
+// Other hash values (for example the skip link "#main") do not change the page.
+function routeFromHash() {
+	const hash = window.location.hash.slice( 1 );
+	if ( hash === '' || hash === HOME_ROUTE || hash in ADMIN_PAGES ) {
+		currentRoute = hash || HOME_ROUTE;
+	}
+	return currentRoute;
+}
+
+function renderRoute() {
+	const route = routeFromHash();
+	// The guide pages are only for admins. Other users always see the teams.
+	const page = state.isAdmin && route in ADMIN_PAGES ? route : HOME_ROUTE;
+
+	elements.adminNav.hidden = ! state.isAdmin;
+	for ( const [ pageRoute, elementName ] of Object.entries( ADMIN_PAGES ) ) {
+		elements[ elementName ].hidden = page !== pageRoute;
+	}
+	elements.drawView.hidden = page !== HOME_ROUTE;
+	elements.adminView.hidden = ! state.isAdmin || page !== HOME_ROUTE;
+
+	for ( const link of elements.adminNav.querySelectorAll( '[data-route]' ) ) {
+		if ( link.dataset.route === page ) {
+			link.setAttribute( 'aria-current', 'page' );
+		} else {
+			link.removeAttribute( 'aria-current' );
+		}
+	}
+}
+
+function onHashChange() {
+	const previousRoute = currentRoute;
+	renderRoute();
+	if ( currentRoute !== previousRoute ) {
+		window.scrollTo( 0, 0 );
+	}
+}
+
 // ---------- Tabs ----------
 
 function selectTab( tab ) {
@@ -794,6 +842,7 @@ function bindEvents() {
 	} );
 	elements.logoutButton.addEventListener( 'click', () => supabase.auth.signOut() );
 	elements.loginForm.addEventListener( 'submit', login );
+	window.addEventListener( 'hashchange', onHashChange );
 
 	elements.drawSelect.addEventListener( 'change', () => {
 		const id = Number( elements.drawSelect.value );

@@ -26,6 +26,11 @@
 					<h1 class="brand__title">Tasajaot</h1>
 				</div>
 			</div>
+			<nav id="admin-nav" class="admin-nav" aria-label="Adminin sivut" hidden>
+				<a class="admin-nav__link" href="#etusivu" data-route="etusivu">Joukkueet</a>
+				<a class="admin-nav__link" href="#ohjeet" data-route="ohjeet">Ohjeet</a>
+				<a class="admin-nav__link" href="#ukk" data-route="ukk">UKK</a>
+			</nav>
 			<div class="site-header__auth">
 				<span id="user-email" class="muted" hidden></span>
 				<button id="login-toggle" class="button button--ghost" type="button">Kirjaudu</button>
@@ -54,6 +59,147 @@
 				<button class="button" type="submit">Kirjaudu</button>
 				<p id="login-message" class="message" role="status" aria-live="polite"></p>
 			</form>
+		</section>
+
+		<section id="help-view" class="card guide" aria-labelledby="help-title" hidden>
+			<h2 id="help-title">Adminin ohjeet</h2>
+			<p class="muted">Lyhyet ohjeet sivuston käyttöön. Tavallisimmat tilanteet ovat <a href="#ukk">UKK:ssa</a>.</p>
+
+			<h3>Viikon kulku</h3>
+			<ol>
+				<li><strong>Ennen vuoroa:</strong> Avaa <em>Joukkueet</em>-sivun välilehti <em>Arvonta</em>. Valitse vuoron päivä ja viikon pelaajat. Valitse sitten <em>Arvo joukkueet</em>.</li>
+				<li><strong>Jaa joukkueet:</strong> Valitse <em>Jaa kuva (WhatsApp)</em> ja lähetä kuva ryhmään.</li>
+				<li><strong>Vuoron jälkeen:</strong> Arvioi joukkueiden alla, oliko jako tasainen. Valitse <em>Tallenna arvio</em>.</li>
+			</ol>
+
+			<h3>Arvonta</h3>
+			<ul>
+				<li>Viikon voi arpoa vain kerran. Tarkista päivä ja pelaajat ennen arvontaa.</li>
+				<li>Sovellus muistaa edellisen viikon valinnat tässä selaimessa. Poista poissa olevat pelaajat ja vierailijat valinnoista.</li>
+				<li>Valintojen yläpuolella näkyy joukkueiden koko ja puolustajien määrä. Tarkista se ennen arvontaa.</li>
+				<li>Täydessä vuorossa (20 pelaajaa) joukkueissa on 4 puolustajaa ja 6 hyökkääjää. Maalivahteja ei arvota.</li>
+			</ul>
+
+			<h3>Arvio vuoron jälkeen</h3>
+			<ul>
+				<li>Siirrä liukusäädin sen mukaan, kumpi joukkue oli parempi. Valitse <em>Tasainen</em>, jos peli oli tasainen.</li>
+				<li>Lopputulos on vapaaehtoinen. Se ei muuta korjausarvoja.</li>
+				<li>Lomake näkyy vasta vuoron päivänä. Vuoron voi arvioida vain kerran.</li>
+				<li>Vain adminit näkevät arviot.</li>
+			</ul>
+
+			<h3>Pelaajat</h3>
+			<ul>
+				<li><strong>Pelipaikat:</strong> <code>P</code> puolustaja, <code>H</code> hyökkääjä, <code>PH</code> puolustaja joka voi pelata hyökkääjänä, <code>HP</code> hyökkääjä joka voi pelata puolustajana.</li>
+				<li><strong>Rating:</strong> 1–5, puolikkaat sallittu. Vain adminit näkevät ratingit.</li>
+				<li><strong>Korjaus:</strong> Arviot muuttavat korjausarvoa automaattisesti, enintään 0,10 vuorossa. Arvonta käyttää lukua rating + korjaus.</li>
+				<li><strong>Muokkaus:</strong> Muuta tietoja välilehdellä <em>Pelaajat</em> ja valitse rivin <em>Tallenna</em>.</li>
+				<li><strong>Excel-tuonti:</strong> Sarakkeet <code>nimi</code>, <code>pelipaikka</code> ja <code>rating</code>. Sovellus päivittää samannimiset pelaajat ja lisää uudet. Se ei poista pelaajia.</li>
+				<li><strong>Poisto:</strong> Pelaajan poisto ei muuta vanhoja arvontoja.</li>
+			</ul>
+
+			<h3>Mitä pelaajat näkevät</h3>
+			<p>Kirjautumaton käyttäjä näkee vain arvotut joukkueet. Ratingit, korjausarvot ja arviot näkyvät vain adminille. Arvonnan logiikka pelaajille on <a href="https://github.com/hsutin/tasajaot#readme">README:ssä</a>.</p>
+		</section>
+
+		<section id="faq-view" class="card guide" aria-labelledby="faq-title" hidden>
+			<h2 id="faq-title">UKK</h2>
+			<p class="muted">Tavallisimmat tilanteet viikosta toiseen. Yleiset ohjeet ovat <a href="#ohjeet">Ohjeissa</a>.</p>
+
+			<h3>Arvonta</h3>
+			<details>
+				<summary>Miten arvon viikon joukkueet?</summary>
+				<ol>
+					<li>Avaa välilehti <em>Arvonta</em>.</li>
+					<li>Tarkista vuoron päivä. Viikon numero näkyy päivän alla.</li>
+					<li>Valitse viikon pelaajat. Poista valinta pelaajilta, jotka eivät tule.</li>
+					<li>Tarkista yhteenveto: pelaajien määrä, joukkueiden koko ja puolustajien määrä.</li>
+					<li>Valitse <em>Arvo joukkueet</em> ja hyväksy vahvistus.</li>
+					<li>Valitse <em>Jaa kuva (WhatsApp)</em> ja lähetä kuva ryhmään.</li>
+				</ol>
+			</details>
+			<details>
+				<summary>Arvoin väärällä päivällä tai väärillä pelaajilla. Mitä teen?</summary>
+				<p>Sovellus ei voi poistaa arvontaa. Poista arvonta Supabasessa:</p>
+				<ol>
+					<li>Avaa Supabasessa <em>Table Editor &gt; draws</em>.</li>
+					<li>Poista väärän viikon rivi.</li>
+					<li>Lataa sovellus uudelleen ja arvo joukkueet uudelleen.</li>
+				</ol>
+				<p><strong>Huom:</strong> Kerro uudesta arvonnasta WhatsApp-ryhmässä, jotta kaikki tietävät, miksi joukkueet muuttuivat. Jos poistettu vuoro oli jo arvioitu, sen korjausarvot jäävät voimaan.</p>
+			</details>
+			<details>
+				<summary>Pelaaja perui arvonnan jälkeen. Mitä teen?</summary>
+				<p>Arvontaa ei voi muuttaa sovelluksessa. Valitse jokin näistä tavoista:</p>
+				<ul>
+					<li><strong>Pieni muutos:</strong> Pyydä samantasoista pelaajaa tilalle samalle pelipaikalle ja kerro siitä ryhmässä.</li>
+					<li><strong>Iso muutos (esimerkiksi 2–3 perumista):</strong> Poista arvonta Supabasessa ja arvo uudelleen. Katso edellinen kysymys.</li>
+				</ul>
+			</details>
+			<details>
+				<summary>Joukkueissa ei ole 4 puolustajaa ja 6 hyökkääjää. Miksi?</summary>
+				<p>Jako 4 + 6 on mahdollinen vain, kun pelaajia on 20. Vajaassa vuorossa noin 40 % pelaajista pelaa puolustajina. Jos puolustajia tai hyökkääjiä on liian vähän, sovellus siirtää PH- ja HP-pelaajia. Jos niitäkään ei ole tarpeeksi, yhteenvedossa näkyy varoitus.</p>
+			</details>
+
+			<h3>Vierailijat</h3>
+			<details>
+				<summary>Miten lisään vierailijan, jonka tason tiedän?</summary>
+				<ol>
+					<li>Avaa välilehti <em>Pelaajat</em>.</li>
+					<li>Kirjoita kohtaan <em>Lisää pelaaja</em> nimi, pelipaikka ja rating. Valitse <em>Lisää</em>.</li>
+					<li>Avaa välilehti <em>Arvonta</em> ja valitse vierailija viikon pelaajaksi.</li>
+				</ol>
+				<p>Käytä koko nimeä. Kahdella pelaajalla ei voi olla samaa nimeä.</p>
+			</details>
+			<details>
+				<summary>Miten lisään vierailijan, jonka tasoa en tiedä?</summary>
+				<ul>
+					<li><strong>Rating:</strong> Anna rating 3, joka on asteikon keskikohta. Rating 3 tekee vähiten haittaa, jos arvio on väärä.</li>
+					<li><strong>Pelipaikka:</strong> Jos et tiedä pelipaikkaa, anna <code>HP</code> tai <code>PH</code>. Silloin sovellus voi sijoittaa pelaajan sinne, missä tarvitaan pelaajia.</li>
+					<li><strong>Vuoron jälkeen:</strong> Korjaa rating, jos taso oli selvästi muu. Yksi arvio muuttaa korjausarvoa vain vähän, joten käsin tehty korjaus on nopeampi.</li>
+				</ul>
+			</details>
+			<details>
+				<summary>Poistanko vierailijan vuoron jälkeen?</summary>
+				<p>Ei tarvitse. Jos vierailija tulee uudelleen, hänen tietonsa ovat valmiina. Poista vain valinta välilehdellä <em>Arvonta</em>, koska sovellus muistaa edellisen viikon valinnat.</p>
+			</details>
+
+			<h3>Arvio ja ratingit</h3>
+			<details>
+				<summary>Miten täytän arvion vuoron jälkeen?</summary>
+				<ol>
+					<li>Avaa sivu. Arvioitava viikko näkyy ylhäällä. Valitse tarvittaessa oikea viikko valikosta.</li>
+					<li>Siirrä joukkueiden alla olevaa liukusäädintä sen mukaan, kumpi joukkue oli parempi.</li>
+					<li>Kirjoita lopputulos, jos haluat.</li>
+					<li>Valitse <em>Tallenna arvio</em> ja hyväksy vahvistus.</li>
+				</ol>
+			</details>
+			<details>
+				<summary>Arviolomaketta ei näy. Miksi?</summary>
+				<ul>
+					<li>Lomake näkyy vasta vuoron päivänä.</li>
+					<li>Vuoro on jo arvioitu. Arvio näkyy silloin joukkueiden alla.</li>
+					<li>Et ole kirjautunut admin-tunnuksella.</li>
+				</ul>
+			</details>
+			<details>
+				<summary>Milloin muutan pelaajan ratingia käsin?</summary>
+				<p>Muuta ratingia, kun tiedät pelaajan tason muuttuneen (esimerkiksi loukkaantuminen tai uusi pelaaja). Nollaa samalla korjausarvo, jotta vanha korjaus ei vaikuta uuteen ratingiin.</p>
+			</details>
+			<details>
+				<summary>Pelaajan korjausarvo on suuri (esimerkiksi +0,6). Mitä teen?</summary>
+				<p>Suuri korjausarvo tarkoittaa, että pelaajan joukkue on usein ollut ratingeja parempi. Pelaajan rating on todennäköisesti liian pieni. Nosta ratingia käsin ja nollaa korjausarvo.</p>
+			</details>
+
+			<h3>Muut</h3>
+			<details>
+				<summary>Jakopainike ei avaa WhatsAppia. Mitä teen?</summary>
+				<p>Tietokoneen selain ei yleensä voi jakaa kuvaa suoraan. Sovellus lataa silloin kuvan. Lähetä ladattu kuva WhatsAppiin. Puhelimessa jakovalikko avautuu.</p>
+			</details>
+			<details>
+				<summary>Miten lisään uuden adminin?</summary>
+				<p>Adminit lisätään Supabasessa: tee käyttäjä kohdassa <em>Authentication &gt; Users</em> ja lisää käyttäjä tauluun <code>admins</code>. Tarkat ohjeet ovat tiedostossa <a href="https://github.com/hsutin/tasajaot/blob/main/KAYTTOONOTTO.md">KAYTTOONOTTO.md</a>.</p>
+			</details>
 		</section>
 
 		<section id="draw-view" class="card" aria-labelledby="draw-title">
