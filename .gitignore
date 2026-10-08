@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+.claude/
+
+# Player data with ratings. Never publish these files.
+*.xlsx
+*.xls
+*.xlsm
+*.ods
+*.csv

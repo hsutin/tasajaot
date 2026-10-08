@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fi">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tasajaot · Seminaarinmäen Senators</title>
+	<meta name="description" content="Seminaarinmäen Senatorsin vuoron viikoittaiset joukkueet.">
+	<meta name="theme-color" content="#102135">
+	<link rel="icon" type="image/png" href="assets/logo.png">
+	<link rel="apple-touch-icon" href="assets/logo.png">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap">
+	<link rel="stylesheet" href="css/style.css">
+	<script type="module" src="js/app.js"></script>
+</head>
+<body>
+	<a class="skip-link" href="#main">Siirry sisältöön</a>
+
+	<header class="site-header">
+		<div class="container site-header__inner">
+			<div class="brand">
+				<img class="brand__logo" src="assets/logo.png" alt="" width="56" height="56">
+				<div>
+					<p class="brand__club">Seminaarinmäen Senators</p>
+					<h1 class="brand__title">Tasajaot</h1>
+				</div>
+			</div>
+			<div class="site-header__auth">
+				<span id="user-email" class="muted" hidden></span>
+				<button id="login-toggle" class="button button--ghost" type="button">Kirjaudu</button>
+				<button id="logout-button" class="button button--ghost" type="button" hidden>Kirjaudu ulos</button>
+			</div>
+		</div>
+	</header>
+
+	<main id="main" class="container">
+		<section id="setup-notice" class="card notice" hidden>
+			<h2>Asetukset puuttuvat</h2>
+			<p>Lisää Supabase-projektin osoite ja avain tiedostoon <code>js/config.js</code>. Katso ohjeet tiedostosta <code>README.md</code>.</p>
+		</section>
+
+		<section id="login-view" class="card" hidden aria-labelledby="login-title">
+			<h2 id="login-title">Admin-kirjautuminen</h2>
+			<form id="login-form" class="form">
+				<label class="field">
+					<span>Sähköposti</span>
+					<input name="email" type="email" autocomplete="username" required>
+				</label>
+				<label class="field">
+					<span>Salasana</span>
+					<input name="password" type="password" autocomplete="current-password" required>
+				</label>
+				<button class="button" type="submit">Kirjaudu</button>
+				<p id="login-message" class="message" role="status" aria-live="polite"></p>
+			</form>
+		</section>
+
+		<section id="draw-view" class="card" aria-labelledby="draw-title">
+			<div class="card__header">
+				<h2 id="draw-title">Joukkueet</h2>
+				<label class="field field--inline">
+					<span class="visually-hidden">Valitse viikko</span>
+					<select id="draw-select"></select>
+				</label>
+			</div>
+			<p id="draw-empty" class="muted" hidden>Joukkueita ei ole vielä arvottu.</p>
+			<div id="draw-result" hidden>
+				<p id="draw-date" class="draw-date"></p>
+				<div class="teams">
+					<section class="team team--white" aria-labelledby="team-white-title">
+						<h3 id="team-white-title">Valkoinen</h3>
+						<div id="team-white"></div>
+					</section>
+					<section class="team team--black" aria-labelledby="team-black-title">
+						<h3 id="team-black-title">Musta</h3>
+						<div id="team-black"></div>
+					</section>
+				</div>
+				<p id="draw-evaluation" class="draw-evaluation" hidden></p>
+				<p id="draw-stats" class="muted" hidden></p>
+				<div class="actions">
+					<button id="share-button" class="button" type="button">Jaa kuva (WhatsApp)</button>
+					<button id="download-button" class="button button--ghost" type="button">Lataa kuva</button>
+				</div>
+				<p id="share-message" class="message" role="status" aria-live="polite"></p>
+
+				<form id="evaluation-form" class="evaluation" hidden>
+					<h3>Arvioi vuoro</h3>
+					<p class="muted">Arvio muuttaa pelaajien korjausarvoja hieman. Vuoron voi arvioida vain kerran.</p>
+					<div class="evaluation__scale">
+						<label for="evaluation-slider" class="evaluation__question">Olivatko joukkueet tasaiset?</label>
+						<output id="evaluation-value" class="evaluation__value" for="evaluation-slider">Tasainen</output>
+						<!-- Left end = white team clearly better. The app reverses the value before it saves it. -->
+						<input id="evaluation-slider" class="evaluation__slider" name="evaluationSlider" type="range" min="-2" max="2" step="1" value="0" aria-valuetext="Tasainen">
+						<div class="evaluation__ticks">
+							<button type="button" class="evaluation__tick" data-value="-2">Valkoinen selvästi</button>
+							<button type="button" class="evaluation__tick" data-value="-1">Valkoinen hieman</button>
+							<button type="button" class="evaluation__tick" data-value="0">Tasainen</button>
+							<button type="button" class="evaluation__tick" data-value="1">Musta hieman</button>
+							<button type="button" class="evaluation__tick" data-value="2">Musta selvästi</button>
+						</div>
+					</div>
+					<fieldset class="evaluation__score">
+						<legend>Lopputulos (vapaaehtoinen)</legend>
+						<label class="field">
+							<span>Valkoinen</span>
+							<input name="whiteGoals" type="number" min="0" max="99" inputmode="numeric">
+						</label>
+						<span aria-hidden="true">–</span>
+						<label class="field">
+							<span>Musta</span>
+							<input name="blackGoals" type="number" min="0" max="99" inputmode="numeric">
+						</label>
+					</fieldset>
+					<button class="button" type="submit">Tallenna arvio</button>
+					<p id="evaluation-message" class="message" role="status" aria-live="polite"></p>
+				</form>
+			</div>
+		</section>
+
+		<section id="admin-view" hidden aria-label="Ylläpito">
+			<div class="tabs" role="tablist" aria-label="Ylläpito">
+				<button id="tab-draw" class="tabs__tab" type="button" role="tab" aria-selected="true" aria-controls="panel-draw">Arvonta</button>
+				<button id="tab-players" class="tabs__tab" type="button" role="tab" aria-selected="false" aria-controls="panel-players" tabindex="-1">Pelaajat</button>
+			</div>
+
+			<section id="panel-draw" class="card" role="tabpanel" aria-labelledby="tab-draw">
+				<h2>Arvo viikon joukkueet</h2>
+				<label class="field field--inline">
+					<span>Vuoron päivä</span>
+					<input id="game-date" type="date" required>
+				</label>
+				<p id="week-status" class="message" role="status" aria-live="polite"></p>
+
+				<div class="selection-bar">
+					<p id="selection-summary" class="selection-summary" aria-live="polite"></p>
+					<div class="actions">
+						<button id="select-all" class="button button--ghost button--small" type="button">Valitse kaikki</button>
+						<button id="select-none" class="button button--ghost button--small" type="button">Tyhjennä</button>
+					</div>
+				</div>
+				<div id="player-checklist" class="checklist"></div>
+
+				<div class="actions">
+					<button id="draw-button" class="button button--primary" type="button">Arvo joukkueet</button>
+				</div>
+				<p id="draw-message" class="message" role="status" aria-live="polite"></p>
+			</section>
+
+			<section id="panel-players" class="card" role="tabpanel" aria-labelledby="tab-players" hidden>
+				<h2>Pelaajat</h2>
+
+				<h3>Tuo Excel-tiedostosta</h3>
+				<p class="muted">Tiedostossa pitää olla sarakkeet <strong>nimi</strong>, <strong>pelipaikka</strong> (P, H, HP tai PH) ja <strong>rating</strong> (1–5). Sovellus päivittää pelaajat, joilla on sama nimi, ja lisää uudet pelaajat.</p>
+				<label class="field">
+					<span>Excel- tai CSV-tiedosto</span>
+					<input id="import-file" type="file" accept=".xlsx,.xls,.csv,.ods">
+				</label>
+				<p id="import-message" class="message" role="status" aria-live="polite"></p>
+				<ul id="import-errors" class="error-list"></ul>
+
+				<h3>Lisää pelaaja</h3>
+				<form id="add-player-form" class="form form--row">
+					<label class="field">
+						<span>Nimi</span>
+						<input name="name" type="text" maxlength="80" required>
+					</label>
+					<label class="field">
+						<span>Pelipaikka</span>
+						<select name="position" required>
+							<option value="P">P</option>
+							<option value="PH">PH</option>
+							<option value="HP">HP</option>
+							<option value="H">H</option>
+						</select>
+					</label>
+					<label class="field">
+						<span>Rating</span>
+						<input name="rating" type="number" min="1" max="5" step="0.5" value="3" required>
+					</label>
+					<button class="button" type="submit">Lisää</button>
+				</form>
+				<p id="player-message" class="message" role="status" aria-live="polite"></p>
+
+				<h3>Pelaajalista</h3>
+				<div class="table-wrap">
+					<table class="players-table">
+						<thead>
+							<tr>
+								<th scope="col">Nimi</th>
+								<th scope="col">Pelipaikka</th>
+								<th scope="col">Rating</th>
+								<th scope="col">Korjaus</th>
+								<th scope="col"><span class="visually-hidden">Toiminnot</span></th>
+							</tr>
+						</thead>
+						<tbody id="players-table-body"></tbody>
+					</table>
+				</div>
+			</section>
+		</section>
+	</main>
+</body>
+</html>
