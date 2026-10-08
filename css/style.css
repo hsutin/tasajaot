@@ -794,22 +794,28 @@ main {
 	border-color: var(--color-accent);
 }
 
-/* The bar stays visible at the bottom of the window while there are unsaved changes. */
+/* The bar is above the table. It stays at the top of the window while the user scrolls the table. */
 .save-bar {
 	display: flex;
 	position: sticky;
-	bottom: 0;
+	top: 0;
 	z-index: 5;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
-	margin-top: var(--space);
+	margin: var(--space) 0;
 	padding: 12px var(--space);
-	border: 2px solid var(--color-accent);
+	border: 1px solid var(--color-border);
 	border-radius: 10px;
+	color: var(--color-muted);
 	background: var(--color-surface);
-	box-shadow: 0 -8px 24px rgb(0 0 0 / 0.35);
+}
+
+.save-bar.has-changes {
+	border: 2px solid var(--color-accent);
+	color: var(--color-text);
+	box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
 }
 
 .save-bar .actions {

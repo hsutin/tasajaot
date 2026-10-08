@@ -531,9 +531,16 @@ function isSameValues( first, second ) {
 
 function updatePlayersSaveBar() {
 	const count = state.playerEdits.size;
-	elements.playersSaveBar.hidden = count === 0;
-	elements.playersChanges.textContent =
-		count === 1 ? '1 pelaajan muutos on tallentamatta.' : `${ count } pelaajan muutokset ovat tallentamatta.`;
+	elements.playersSaveBar.classList.toggle( 'has-changes', count > 0 );
+	elements.savePlayers.disabled = count === 0;
+	elements.cancelPlayerEdits.disabled = count === 0;
+	if ( count === 0 ) {
+		elements.playersChanges.textContent = 'Ei tallentamattomia muutoksia.';
+	} else if ( count === 1 ) {
+		elements.playersChanges.textContent = '1 pelaajan muutos on tallentamatta.';
+	} else {
+		elements.playersChanges.textContent = `${ count } pelaajan muutokset ovat tallentamatta.`;
+	}
 }
 
 function renderPlayersTable() {
@@ -694,7 +701,6 @@ async function saveAllPlayers() {
 		}
 	}
 
-	elements.savePlayers.disabled = false;
 	if ( failed.length > 0 ) {
 		const details = failed.map( ( result ) => `${ result.player.name }: ${ databaseErrorText( result.error ) }` );
 		showMessage(
