@@ -8,8 +8,8 @@ const SELECTION_STORAGE_KEY = 'tasajaot.selectedPlayers';
 const POSITION_ORDER = [ 'P', 'PH', 'HP', 'H' ];
 const POSITION_LABELS = {
 	P: 'Puolustajat (P)',
-	PH: 'Puolustaja / hyökkääjä (PH)',
-	HP: 'Hyökkääjä / puolustaja (HP)',
+	PH: 'Ensisijainen puolustaja, voi pelata myös hyökkääjänä (PH)',
+	HP: 'Ensisijainen hyökkääjä, voi pelata myös puolustajana (HP)',
 	H: 'Hyökkääjät (H)',
 };
 

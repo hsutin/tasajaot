@@ -18,8 +18,8 @@ Ylläpitäjän ohjeet ovat tiedostossa [KAYTTOONOTTO.md](KAYTTOONOTTO.md).
 |---|---|
 | Pelipaikka `P` | Puolustaja |
 | Pelipaikka `H` | Hyökkääjä |
-| Pelipaikka `PH` | Ensisijaisesti puolustaja, voi pelata myös hyökkääjänä |
-| Pelipaikka `HP` | Ensisijaisesti hyökkääjä, voi pelata myös puolustajana |
+| Pelipaikka `PH` | Ensisijainen puolustaja, joka voi pelata myös hyökkääjänä |
+| Pelipaikka `HP` | Ensisijainen hyökkääjä, joka voi pelata myös puolustajana |
 | Rating 1–5 | Pelaajan taso. Vain adminit näkevät ratingit. |
 | Korjausarvo | Arvioista laskettu pieni korjaus ratingiin (katso alempaa). Vain adminit näkevät korjausarvot. |
 
