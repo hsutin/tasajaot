@@ -35,6 +35,8 @@ export const SUPABASE_KEY = 'eyJhbGciOi...';
 
 Voit tallentaa nämä arvot julkiseen repoon. Tietokannan säännöt (RLS) suojaavat datan.
 
+Kirjoita sama Project URL myös tiedoston `index.html` Content Security Policyyn, kohtaan `connect-src`. Muuten selain estää yhteyden Supabaseen.
+
 > **Varoitus:** Älä koskaan laita `service_role`- tai `secret`-avainta tähän tiedostoon. Sillä avaimella kuka tahansa voi lukea ja muuttaa kaiken datan.
 
 ### 3. Julkaise GitHub Pagesissa
@@ -113,5 +115,6 @@ npm test
 | `js/image.js` | WhatsApp-kuvan teko ja jako |
 | `js/excel.js` | Excel-tuonti |
 | `js/config.js` | Supabase-asetukset |
+| `js/vendor/` | Kirjastojen paikalliset kopiot (Supabase ja SheetJS) |
 | `supabase/schema.sql` | Tietokannan taulut ja oikeudet |
 | `tests/draw.test.mjs` | Algoritmin testit |

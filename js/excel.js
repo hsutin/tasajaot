@@ -2,7 +2,8 @@
 
 import { normalizePosition } from './draw.js';
 
-const SHEETJS_URL = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/xlsx.mjs';
+// Local copy of SheetJS. The browser loads it only when an admin imports a file.
+const SHEETJS_URL = './vendor/xlsx-0.20.3.mjs';
 
 const COLUMN_NAMES = {
 	name: [ 'nimi', 'name', 'pelaaja' ],

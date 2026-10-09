@@ -1,4 +1,3 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 import { drawTeams, lineTargets, wantedDefenders, MAX_PLAYERS, POSITIONS } from './draw.js';
 import { renderTeamsImage, shareCanvas, downloadCanvas, formatDate, prepareImageAssets, ROLE_LABELS } from './image.js';
@@ -992,7 +991,8 @@ async function start() {
 		return;
 	}
 
-	supabase = createClient( SUPABASE_URL, SUPABASE_KEY );
+	// js/vendor/supabase-2.45.4.js sets the global "supabase" object.
+	supabase = window.supabase.createClient( SUPABASE_URL, SUPABASE_KEY );
 	elements.gameDate.value = todayIsoDate();
 	bindEvents();
 
