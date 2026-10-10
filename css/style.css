@@ -465,6 +465,15 @@ select {
 	margin-left: 4px;
 }
 
+.test-notice {
+	margin: 0 0 var(--space);
+	padding: 8px 12px;
+	border-radius: 8px;
+	background: var(--color-accent);
+	color: var(--color-accent-text);
+	font-weight: 600;
+}
+
 /* Evaluation */
 
 .draw-evaluation {

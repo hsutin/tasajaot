@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { drawTeams, lineTargets, wantedDefenders, canPlay, normalizePosition } from '../js/draw.js';
+import { drawTeams, lineTargets, wantedDefenders, canPlay, normalizePosition, impactValue } from '../js/draw.js';
 
 // Deterministic random generator, so a failed test gives the same result again.
 function seededRandom( seed ) {
@@ -135,3 +135,36 @@ test( 'the draw gives different teams with different random values', () => {
 	}
 	assert.ok( keys.size >= 5, `only ${ keys.size } different splits` );
 } );
+
+test( 'the impact value increases the ends of the rating scale', () => {
+	assert.equal( impactValue( 3 ), 3 );
+	assert.equal( impactValue( 5 ), 7 );
+	assert.equal( impactValue( 4 ), 4.5 );
+	assert.ok( Math.abs( impactValue( 2 ) - 1.7 ) < 1e-9 );
+	assert.ok( Math.abs( impactValue( 1 ) + 0.2 ) < 1e-9 );
+	// A strong player has a larger effect than a weak player.
+	assert.ok( impactValue( 5 ) + impactValue( 1 ) > 6 );
+	assert.ok( impactValue( 4 ) * 2 + impactValue( 1 ) < 9 );
+} );
+
+test( 'strong and weak players are divided evenly', () => {
+	const ratings = [ 5, 5, 4.5, 4.5, 1, 1, 1.5, 1.5, 3, 3, 3, 3, 3, 3, 3.5, 3.5, 2.5, 2.5, 4, 2 ];
+	for ( let seed = 1; seed <= 20; seed++ ) {
+		const random = seededRandom( seed );
+		const players = shuffleRatings( ratings, random ).map( ( rating, index ) => ( {
+			id: index + 1,
+			name: `Pelaaja ${ index + 1 }`,
+			position: FULL_SHIFT[ index ],
+			rating,
+		} ) );
+		const result = drawTeams( players, { random } );
+		const count = ( team, test ) =>
+			team.filter( ( member ) => test( players.find( ( player ) => player.id === member.id ).rating ) ).length;
+		assert.equal( count( result.white, ( rating ) => rating >= 4.5 ), 2, `seed ${ seed }: strong players` );
+		assert.equal( count( result.white, ( rating ) => rating < 2 ), 2, `seed ${ seed }: weak players` );
+	}
+} );
+
+function shuffleRatings( ratings, random ) {
+	return [ ...ratings ].sort( () => random() - 0.5 );
+}

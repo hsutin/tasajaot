@@ -78,6 +78,7 @@
 				<li>Jokaisella pelaajalla on pelipaikka ja taso.</li>
 				<li>Sovellus tekee satoja eri jakoja ja arpoo yhden tasaisimpien joukosta. Siksi joukkueet vaihtuvat joka viikko.</li>
 				<li>Puolustusten ja hyökkäysten pitää olla yhtä vahvat. Vahva puolustus ei voi korvata heikkoa hyökkäystä.</li>
+				<li>Kaikkein vahvimmat ja heikoimmat pelaajat jaetaan tasan joukkueisiin, koska he vaikuttavat joukkueen tasoon eniten.</li>
 				<li>Joukkueet arvotaan vain kerran viikossa. Kukaan ei voi arpoa uudelleen.</li>
 				<li>Maalivahdit eivät ole mukana arvonnassa, koska he vaihtavat päätyä.</li>
 			</ul>
@@ -137,6 +138,7 @@
 				<li>Viikon voi arpoa vain kerran. Tarkista päivä ja pelaajat ennen arvontaa.</li>
 				<li>Sovellus muistaa edellisen viikon valinnat tässä selaimessa. Poista poissa olevat pelaajat ja vierailijat valinnoista.</li>
 				<li>Valintojen yläpuolella näkyy joukkueiden koko ja puolustajien määrä. Tarkista se ennen arvontaa.</li>
+				<li><em>Testiarvonta</em> arpoo joukkueet samalla tavalla, mutta ei tallenna niitä. Muut eivät näe testiarvontaa. Testiarvonnan kuvassa lukee <em>TESTI – EI TALLENNETTU</em>. Älä jaa sitä ryhmään.</li>
 				<li>Täydessä vuorossa (20 pelaajaa) joukkueissa on 4 puolustajaa ja 6 hyökkääjää. Kun pelaajia on 19, puolustajia on 4 + 3. Kun pelaajia on 14–18, joukkueissa on 3 puolustajaa. Vuorossa voi olla enintään 20 kenttäpelaajaa. Maalivahteja ei arvota.</li>
 			</ul>
 
@@ -177,6 +179,10 @@
 					<li>Valitse <em>Arvo joukkueet</em> ja hyväksy vahvistus.</li>
 					<li>Valitse <em>Jaa kuva (WhatsApp)</em> ja lähetä kuva ryhmään.</li>
 				</ol>
+			</details>
+			<details>
+				<summary>Miten kokeilen arvontaa ilman tallennusta?</summary>
+				<p>Valitse pelaajat ja valitse <em>Testiarvonta</em>. Sovellus näyttää joukkueet ja merkinnän <em>Testiarvonta – ei tallennettu</em>. Voit tehdä testiarvonnan monta kertaa. Palaa tallennettuihin arvontoihin viikkovalinnasta tai lataa sivu uudelleen.</p>
 			</details>
 			<details>
 				<summary>Arvoin väärällä päivällä tai väärillä pelaajilla. Mitä teen?</summary>
@@ -274,6 +280,7 @@
 			<p id="draw-empty" class="muted" hidden>Joukkueita ei ole vielä arvottu.</p>
 			<div id="draw-result" hidden>
 				<p id="draw-date" class="draw-date"></p>
+				<p id="draw-test-notice" class="test-notice" hidden>Testiarvonta – ei tallennettu. Vain sinä näet nämä joukkueet. Vain tallennettu arvonta on voimassa.</p>
 				<div class="teams">
 					<section class="team team--white" aria-labelledby="team-white-title">
 						<h3 id="team-white-title">Valkoinen</h3>
@@ -351,7 +358,9 @@
 
 				<div class="actions">
 					<button id="draw-button" class="button button--primary" type="button">Arvo joukkueet</button>
+					<button id="test-draw-button" class="button button--ghost" type="button">Testiarvonta</button>
 				</div>
+				<p class="muted">Testiarvonta näyttää joukkueet, mutta ei tallenna niitä. Muut eivät näe testiarvontaa, ja voit tehdä sen monta kertaa.</p>
 				<p id="draw-message" class="message" role="status" aria-live="polite"></p>
 			</section>
 

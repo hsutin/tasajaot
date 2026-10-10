@@ -170,7 +170,8 @@ export function renderTeamsImage( draw ) {
 
 	context.fillStyle = COLORS.accent;
 	context.font = `500 30px ${ DISPLAY_FONT }`;
-	context.fillText( 'SEMINAARINMÄEN SENATORS', textX, 92 );
+	// A test draw is not valid, so the image tells it clearly in place of the club name.
+	context.fillText( draw.isTest ? 'TESTI – EI TALLENNETTU' : 'SEMINAARINMÄEN SENATORS', textX, 92 );
 
 	context.fillStyle = COLORS.title;
 	context.font = `700 76px ${ DISPLAY_FONT }`;

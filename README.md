@@ -54,14 +54,48 @@ Maalivahdit eivät ole mukana arvonnassa, koska he vaihtavat päätyä vuoron ai
 
 Sovellus vertaa jokaisessa jaossa näitä asioita tässä järjestyksessä:
 
-1. **Puolustusten taso:** puolustajien ratingien keskiarvo kummassakin joukkueessa.
-2. **Hyökkäysten taso:** hyökkääjien ratingien keskiarvo kummassakin joukkueessa.
-3. **Joukkueiden kokonaistaso:** kaikkien pelaajien ratingien summa.
-4. **Pelipaikat:** mahdollisimman moni pelaaja pelaa ensisijaisella paikallaan.
+1. **Vahvat ja heikot pelaajat:** pelaajat, joiden rating on vähintään 4,5, ja pelaajat, joiden rating on alle 2. Kummassakin joukkueessa on yhtä monta vahvaa ja yhtä monta heikkoa pelaajaa. Jos määrä on pariton, ero on yksi pelaaja.
+2. **Puolustusten taso:** puolustajien vaikutusarvojen keskiarvo kummassakin joukkueessa.
+3. **Hyökkäysten taso:** hyökkääjien vaikutusarvojen keskiarvo kummassakin joukkueessa.
+4. **Joukkueiden kokonaistaso:** kaikkien pelaajien vaikutusarvojen summa.
+5. **Pelipaikat:** mahdollisimman moni pelaaja pelaa ensisijaisella paikallaan.
 
-Kentät ovat tärkeimmät, jotta vahva puolustus ei voi korvata heikkoa hyökkäystä. Kun kentät ovat tasaiset, myös kokonaistaso on tasainen.
+Kentät ovat tärkeämmät kuin kokonaistaso, jotta vahva puolustus ei voi korvata heikkoa hyökkäystä. Kun kentät ovat tasaiset, myös kokonaistaso on tasainen.
 
 Sovellus vertaa kenttien keskiarvoja, ei summia. Jos joukkueessa on 3 puolustajaa ja toisessa 4, summien vertailu antaisi väärän tuloksen.
+
+### Vahvat ja heikot pelaajat
+
+Ratingin ääripäiden pelaajat vaikuttavat joukkueen tasoon enemmän kuin rating kertoo. Pelaaja, jonka rating on 4,5–5, ratkaisee pelejä. Pelaaja, jonka rating on alle 2, heikentää joukkueen peliä selvästi. Pelaajat, joiden rating on lähellä keskiarvoa 3, eivät vaikuta yhtä paljon.
+
+Siksi sovellus ei vertaa ratingeja suoraan. Se muuttaa jokaisen ratingin **vaikutusarvoksi**:
+
+- e = rating − 3
+- vaikutusarvo = 3 + e × (1 + k × |e|)
+- k on 0,5, kun rating on yli 3, ja 0,3, kun rating on alle 3.
+
+Vahvan pelaajan kerroin on suurempi, koska vahva pelaaja ratkaisee peliä enemmän kuin heikko pelaaja heikentää sitä.
+
+| Rating | Vaikutusarvo | Muutos |
+|---|---|---|
+| 5,0 | 7,0 | +2,0 |
+| 4,5 | 5,6 | +1,1 |
+| 4,0 | 4,5 | +0,5 |
+| 3,5 | 3,6 | +0,1 |
+| 3,0 | 3,0 | 0 |
+| 2,5 | 2,4 | −0,1 |
+| 2,0 | 1,7 | −0,3 |
+| 1,5 | 0,8 | −0,7 |
+| 1,0 | −0,2 | −1,2 |
+
+**Esimerkkejä kolmen pelaajan ketjuista.** Ratingien summat ovat samat, mutta vaikutusarvot eivät ole:
+
+| Ketju 1 | Ketju 2 | Vaikutusarvot | Vahvempi ketju |
+|---|---|---|---|
+| 5, 1 | 3, 3 | 6,8 – 6,0 | Ketju 1: viitonen ratkaisee enemmän kuin ykkönen heikentää. |
+| 5, 2, 2 | 3, 3, 3 | 10,4 – 9,0 | Ketju 1 |
+| 4, 4, 1 | 3, 3, 3 | 8,8 – 9,0 | Ketju 2: ykkösen haitta on suurempi kuin kahden nelosen etu. |
+| 3,5, 2,5 | 3, 3 | 6,0 – 6,0 | Tasan: keskialueella mikään ei muutu. |
 
 ### Arvonnan vaiheet
 
@@ -77,6 +111,8 @@ Vaihe 4 on syy, miksi joukkueet vaihtuvat joka viikko. Tasaisia jakoja on yleens
 
 Testasimme algoritmia 200 kuvitteellisella vuorolla, joissa on 20 pelaajaa ja satunnaiset ratingit 1–5. Puolustusten ratingien summa erosi keskimäärin 0,4 pistettä ja hyökkäysten 0,3 pistettä. Ero on koko kentän summa, ei ero pelaajaa kohti.
 
+Vahvat ja heikot pelaajat jakautuivat tasan jokaisessa testivuorossa. Ilman tätä sääntöä noin joka neljännessä vuorossa toisessa joukkueessa oli kaksi vahvaa tai heikkoa pelaajaa enemmän.
+
 Täysin tasaisia jakoja ei aina ole. Jos vuorossa on esimerkiksi yksi selvästi muita parempi puolustaja, toinen puolustus on aina hieman vahvempi.
 
 ## Arvonta vain kerran
@@ -84,6 +120,8 @@ Täysin tasaisia jakoja ei aina ole. Jos vuorossa on esimerkiksi yksi selvästi 
 Admin valitsee viikon pelaajat ja arpoo joukkueet. Tietokanta sallii vain yhden arvonnan jokaista viikkoa kohti. Kun joukkueet on arvottu, kukaan ei voi muuttaa niitä sovelluksessa. Admin ei siis voi arpoa uudelleen, jos hän ei pidä tuloksesta.
 
 Admin näkee arvonnan tuloksen vasta, kun se on tallennettu.
+
+**Testiarvonta:** Adminit voivat kokeilla arvontaa testiarvonnalla. Sovellus ei tallenna testiarvontaa, eikä kukaan muu näe sitä. Testiarvonnan kuvassa lukee ”TESTI – EI TALLENNETTU”. Vain tallennettu arvonta on voimassa.
 
 ## Arvio vuoron jälkeen ja korjausarvo
 

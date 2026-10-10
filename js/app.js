@@ -39,6 +39,7 @@ const elements = Object.fromEntries(
 		'draw-empty',
 		'draw-result',
 		'draw-date',
+		'draw-test-notice',
 		'team-white',
 		'team-black',
 		'draw-evaluation',
@@ -62,6 +63,7 @@ const elements = Object.fromEntries(
 		'select-none',
 		'player-checklist',
 		'draw-button',
+		'test-draw-button',
 		'draw-message',
 		'import-file',
 		'import-message',
@@ -166,7 +168,7 @@ function effectiveRating( player ) {
 }
 
 function fileNameForDraw( draw ) {
-	return `joukkueet-${ draw.game_date }.png`;
+	return `${ draw.isTest ? 'testi-' : '' }joukkueet-${ draw.game_date }.png`;
 }
 
 // ---------- Draw view (public) ----------
@@ -194,7 +196,12 @@ async function loadDraws( selectId = null ) {
 	);
 	elements.drawSelect.hidden = data.length === 0;
 
-	const selected = data.find( ( draw ) => draw.id === selectId ) ?? data[ 0 ] ?? null;
+	showSavedDraw( selectId );
+}
+
+// Shows a saved draw: the draw with the given id, or the newest draw.
+function showSavedDraw( selectId = null ) {
+	const selected = state.draws.find( ( draw ) => draw.id === selectId ) ?? state.draws[ 0 ] ?? null;
 	if ( selected ) {
 		elements.drawSelect.value = String( selected.id );
 	}
@@ -235,6 +242,7 @@ function showDraw( draw ) {
 	state.currentDraw = draw;
 	elements.drawEmpty.hidden = Boolean( draw );
 	elements.drawResult.hidden = ! draw;
+	elements.drawTestNotice.hidden = ! draw?.isTest;
 	showMessage( elements.shareMessage, '' );
 	if ( ! draw ) {
 		return;
@@ -269,7 +277,7 @@ function renderEvaluation( draw ) {
 		elements.drawEvaluation.textContent = `${ score }Arvio: ${ EVALUATION_LABELS[ evaluation.evaluation ] } (näkyy vain adminille)`;
 	}
 
-	const canEvaluate = state.isAdmin && draw && ! evaluated && draw.game_date <= todayIsoDate();
+	const canEvaluate = state.isAdmin && draw && ! draw.isTest && ! evaluated && draw.game_date <= todayIsoDate();
 	elements.evaluationForm.hidden = ! canEvaluate;
 	if ( canEvaluate ) {
 		elements.evaluationForm.reset();
@@ -391,6 +399,10 @@ async function updateSession( session ) {
 		await checkWeek();
 	} else {
 		state.players = [];
+		// A test draw is only for admins.
+		if ( state.currentDraw?.isTest ) {
+			showSavedDraw();
+		}
 		if ( user ) {
 			showMessage( elements.shareMessage, 'Tällä käyttäjällä ei ole admin-oikeuksia.', 'error' );
 		}
@@ -513,8 +525,9 @@ function renderSelectionSummary() {
 
 function updateDrawButton() {
 	const playerCount = selectedPlayers().length;
-	elements.drawButton.disabled =
-		state.weekTaken || playerCount < 2 || playerCount > MAX_PLAYERS || ! elements.gameDate.value;
+	const validCount = playerCount >= 2 && playerCount <= MAX_PLAYERS;
+	elements.drawButton.disabled = state.weekTaken || ! validCount || ! elements.gameDate.value;
+	elements.testDrawButton.disabled = ! validCount;
 }
 
 function setAllSelected( selected ) {
@@ -811,6 +824,31 @@ async function checkWeek() {
 	updateDrawButton();
 }
 
+function drawSelectedTeams( players ) {
+	return drawTeams( players.map( ( player ) => ( { ...player, rating: effectiveRating( player ) } ) ) );
+}
+
+// A test draw shows the teams to the admin, but the app does not save it.
+function runTestDraw() {
+	const gameDate = elements.gameDate.value || todayIsoDate();
+	try {
+		const result = drawSelectedTeams( selectedPlayers() );
+		showDraw( {
+			id: null,
+			game_date: gameDate,
+			week: isoWeek( gameDate ),
+			teams: { white: result.white, black: result.black },
+			isTest: true,
+		} );
+		// No week is selected, so the admin can select a saved draw again.
+		elements.drawSelect.value = '';
+		showMessage( elements.drawMessage, 'Testiarvonta valmis. Joukkueita ei tallennettu.', 'success' );
+		document.getElementById( 'draw-view' ).scrollIntoView( { behavior: 'smooth' } );
+	} catch ( error ) {
+		showMessage( elements.drawMessage, `Testiarvonta epäonnistui: ${ error.message }`, 'error' );
+	}
+}
+
 async function runDraw() {
 	const players = selectedPlayers();
 	const gameDate = elements.gameDate.value;
@@ -828,9 +866,7 @@ async function runDraw() {
 	showMessage( elements.drawMessage, 'Arvotaan…' );
 
 	try {
-		const result = drawTeams(
-			players.map( ( player ) => ( { ...player, rating: effectiveRating( player ) } ) )
-		);
+		const result = drawSelectedTeams( players );
 		const { data, error } = await supabase
 			.from( 'draws' )
 			.insert( { game_date: gameDate, teams: { white: result.white, black: result.black } } )
@@ -940,8 +976,7 @@ function bindEvents() {
 	window.addEventListener( 'hashchange', onHashChange );
 
 	elements.drawSelect.addEventListener( 'change', () => {
-		const id = Number( elements.drawSelect.value );
-		showDraw( state.draws.find( ( draw ) => draw.id === id ) ?? null );
+		showSavedDraw( Number( elements.drawSelect.value ) );
 	} );
 	elements.shareButton.addEventListener( 'click', shareCurrentDraw );
 	elements.downloadButton.addEventListener( 'click', downloadCurrentDraw );
@@ -964,6 +999,7 @@ function bindEvents() {
 	elements.selectAll.addEventListener( 'click', () => setAllSelected( true ) );
 	elements.selectNone.addEventListener( 'click', () => setAllSelected( false ) );
 	elements.drawButton.addEventListener( 'click', runDraw );
+	elements.testDrawButton.addEventListener( 'click', runTestDraw );
 
 	elements.importFile.addEventListener( 'change', importPlayers );
 	elements.addPlayerForm.addEventListener( 'submit', addPlayer );

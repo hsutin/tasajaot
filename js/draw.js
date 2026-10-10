@@ -12,6 +12,18 @@ const WEIGHT_TOTAL = 4;
 const WEIGHT_LINE = 10;
 const WEIGHT_SECONDARY_ROLE = 1;
 
+// Strong and weak players have a large effect on the level of their team.
+// The teams must have an equal number of these players, so this weight is the largest.
+const WEIGHT_EXTREMES = 15;
+export const STRONG_RATING = 4.5;
+export const WEAK_RATING = 2;
+
+// The impact value increases the distance from the middle rating 3.
+// A strong player has a larger effect than a weak player, so the upward factor is larger.
+const IMPACT_MIDDLE = 3;
+const IMPACT_FACTOR_UP = 0.5;
+const IMPACT_FACTOR_DOWN = 0.3;
+
 // The shift has a maximum of 20 players: 4 defenders and 6 forwards per team.
 export const MAX_PLAYERS = 20;
 const MAX_FORWARDS_PER_TEAM = 6;
@@ -53,6 +65,17 @@ export function normalizePosition( value ) {
 		.toUpperCase()
 		.replace( /[^PH]/g, '' );
 	return POSITIONS.includes( position ) ? position : null;
+}
+
+/**
+ * Impact value of a rating. Ratings near 3 do not change much, but the ends of the scale change more.
+ * For example: 5 → 7.0, 4 → 4.5, 3 → 3.0, 2 → 1.7 and 1 → -0.2.
+ * Thus 5 + 1 is stronger than 3 + 3, and 4 + 4 + 1 is weaker than 3 + 3 + 3.
+ */
+export function impactValue( rating ) {
+	const distance = rating - IMPACT_MIDDLE;
+	const factor = distance > 0 ? IMPACT_FACTOR_UP : IMPACT_FACTOR_DOWN;
+	return IMPACT_MIDDLE + distance * ( 1 + factor * Math.abs( distance ) );
 }
 
 function shuffle( list, random ) {
@@ -170,18 +193,33 @@ export function teamStats( players, state ) {
 		forwardTotal: 0,
 		defenders: 0,
 		forwards: 0,
+		impactTotal: 0,
+		defenceImpact: 0,
+		forwardImpact: 0,
+		strongPlayers: 0,
+		weakPlayers: 0,
 		secondaryRoles: 0,
 	} ) );
 
 	players.forEach( ( player, index ) => {
 		const team = stats[ state.teams[ index ] ];
+		const impact = impactValue( player.rating );
 		team.total += player.rating;
+		team.impactTotal += impact;
 		if ( state.roles[ index ] === ROLE_DEFENCE ) {
 			team.defenceTotal += player.rating;
+			team.defenceImpact += impact;
 			team.defenders++;
 		} else {
 			team.forwardTotal += player.rating;
+			team.forwardImpact += impact;
 			team.forwards++;
+		}
+		if ( player.rating >= STRONG_RATING ) {
+			team.strongPlayers++;
+		}
+		if ( player.rating < WEAK_RATING ) {
+			team.weakPlayers++;
 		}
 		if ( state.roles[ index ] !== primaryRole( player.position ) ) {
 			team.secondaryRoles++;
@@ -200,15 +238,17 @@ function lineDifference( sums, counts ) {
 function cost( players, state ) {
 	const [ teamZero, teamOne ] = teamStats( players, state );
 	const value =
-		WEIGHT_TOTAL * Math.abs( teamZero.total - teamOne.total ) +
+		WEIGHT_EXTREMES * Math.abs( teamZero.strongPlayers - teamOne.strongPlayers ) +
+		WEIGHT_EXTREMES * Math.abs( teamZero.weakPlayers - teamOne.weakPlayers ) +
+		WEIGHT_TOTAL * Math.abs( teamZero.impactTotal - teamOne.impactTotal ) +
 		WEIGHT_LINE *
 			lineDifference(
-				[ teamZero.defenceTotal, teamOne.defenceTotal ],
+				[ teamZero.defenceImpact, teamOne.defenceImpact ],
 				[ teamZero.defenders, teamOne.defenders ]
 			) +
 		WEIGHT_LINE *
 			lineDifference(
-				[ teamZero.forwardTotal, teamOne.forwardTotal ],
+				[ teamZero.forwardImpact, teamOne.forwardImpact ],
 				[ teamZero.forwards, teamOne.forwards ]
 			) +
 		WEIGHT_SECONDARY_ROLE * ( teamZero.secondaryRoles + teamOne.secondaryRoles );
