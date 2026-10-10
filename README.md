@@ -54,7 +54,7 @@ Maalivahdit eivät ole mukana arvonnassa, koska he vaihtavat päätyä vuoron ai
 
 Sovellus vertaa jokaisessa jaossa näitä asioita tässä järjestyksessä:
 
-1. **Vahvat ja heikot pelaajat:** pelaajat, joiden rating on vähintään 4,5, ja pelaajat, joiden rating on alle 2. Kummassakin joukkueessa on yhtä monta vahvaa ja yhtä monta heikkoa pelaajaa. Jos määrä on pariton, ero on yksi pelaaja.
+1. **Ratingin päät:** pelaajat, joiden rating on vähintään 4,5, ja pelaajat, joiden rating on alle 2. Kummassakin joukkueessa on yhtä monta ratingin yläpään ja yhtä monta ratingin alapään pelaajaa. Jos määrä on pariton, ero on yksi pelaaja.
 2. **Puolustusten taso:** puolustajien vaikutusarvojen keskiarvo kummassakin joukkueessa.
 3. **Hyökkäysten taso:** hyökkääjien vaikutusarvojen keskiarvo kummassakin joukkueessa.
 4. **Joukkueiden kokonaistaso:** kaikkien pelaajien vaikutusarvojen summa.
@@ -64,9 +64,9 @@ Kentät ovat tärkeämmät kuin kokonaistaso, jotta vahva puolustus ei voi korva
 
 Sovellus vertaa kenttien keskiarvoja, ei summia. Jos joukkueessa on 3 puolustajaa ja toisessa 4, summien vertailu antaisi väärän tuloksen.
 
-### Vahvat ja heikot pelaajat
+### Ratingin ääripäät
 
-Ratingin ääripäiden pelaajat vaikuttavat joukkueen tasoon enemmän kuin rating kertoo. Pelaaja, jonka rating on 4,5–5, ratkaisee pelejä. Pelaaja, jonka rating on alle 2, heikentää joukkueen peliä selvästi. Pelaajat, joiden rating on lähellä keskiarvoa 3, eivät vaikuta yhtä paljon.
+Ratingin ääripäiden pelaajat vaikuttavat joukkueen tasoon yleensä enemmän kuin ratingin keskiarvolle osuvat pelaajat. Pelaajat, joiden rating on lähellä keskiarvoa 3, eivät vaikuta yhtä ratkaisevasti yleensä suuntaan tai toiseen.
 
 Siksi sovellus ei vertaa ratingeja suoraan. Se muuttaa jokaisen ratingin **vaikutusarvoksi**:
 
@@ -111,7 +111,7 @@ Vaihe 4 on syy, miksi joukkueet vaihtuvat joka viikko. Tasaisia jakoja on yleens
 
 Testasimme algoritmia 200 kuvitteellisella vuorolla, joissa on 20 pelaajaa ja satunnaiset ratingit 1–5. Puolustusten ratingien summa erosi keskimäärin 0,4 pistettä ja hyökkäysten 0,3 pistettä. Ero on koko kentän summa, ei ero pelaajaa kohti.
 
-Vahvat ja heikot pelaajat jakautuivat tasan jokaisessa testivuorossa. Ilman tätä sääntöä noin joka neljännessä vuorossa toisessa joukkueessa oli kaksi vahvaa tai heikkoa pelaajaa enemmän.
+Ratingin eri päiden pelaajat jakautuivat tasan jokaisessa testivuorossa. Ilman tätä sääntöä noin joka neljännessä vuorossa toisessa joukkueessa oli kaksi vahvaa tai heikkoa pelaajaa enemmän.
 
 Täysin tasaisia jakoja ei aina ole. Jos vuorossa on esimerkiksi yksi selvästi muita parempi puolustaja, toinen puolustus on aina hieman vahvempi.
 
