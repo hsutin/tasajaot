@@ -8,7 +8,7 @@ Ylläpitäjän ohjeet ovat tiedostossa [KAYTTOONOTTO.md](KAYTTOONOTTO.md).
 
 - Jokaisella pelaajalla on pelipaikka ja rating 1–5.
 - Sovellus tekee satoja eri jakoja ja valitsee niistä tasaisimpien joukosta yhden sattumanvaraisesti.
-- Tärkeintä on, että **puolustukset ovat yhtä vahvat ja hyökkäykset ovat yhtä vahvat**. Pelkkä yhteissumma ei riitä.
+- Tärkeintä on, että **puolustukset ovat samantasoiset ja hyökkäykset ovat samantasoiset**. Pelkkä yhteissumma ei täysin riitä.
 - Joukkueet arvotaan **vain kerran viikossa**. Kukaan ei voi arpoa uudelleen, jos tulos ei miellytä.
 - Vuoron jälkeen admin arvioi, oliko jako tasainen. Arvio korjaa ratingeja hieman tulevia viikkoja varten.
 
@@ -60,7 +60,7 @@ Sovellus vertaa jokaisessa jaossa näitä asioita tässä järjestyksessä:
 4. **Joukkueiden kokonaistaso:** kaikkien pelaajien vaikutusarvojen summa.
 5. **Pelipaikat:** mahdollisimman moni pelaaja pelaa ensisijaisella paikallaan.
 
-Kentät ovat tärkeämmät kuin kokonaistaso, jotta vahva puolustus ei voi korvata heikkoa hyökkäystä. Kun kentät ovat tasaiset, myös kokonaistaso on tasainen.
+Kentät ovat tärkeämmät kuin kokonaistaso, jotta puolustusten ero ei voi tasoittaa hyökkäysten eroa. Kun kentät ovat tasaiset, myös kokonaistaso on tasainen.
 
 Sovellus vertaa kenttien keskiarvoja, ei summia. Jos joukkueessa on 3 puolustajaa ja toisessa 4, summien vertailu antaisi väärän tuloksen.
 
@@ -74,7 +74,7 @@ Siksi sovellus ei vertaa ratingeja suoraan. Se muuttaa jokaisen ratingin **vaiku
 - vaikutusarvo = 3 + e × (1 + k × |e|)
 - k on 0,5, kun rating on yli 3, ja 0,3, kun rating on alle 3.
 
-Vahvan pelaajan kerroin on suurempi, koska vahva pelaaja ratkaisee peliä enemmän kuin heikko pelaaja heikentää sitä.
+Ratingin alapäässä kerroin on pienempi. Siksi alapään ratingien vaikutusarvo muuttuu maltillisemmin kuin yläpään ratingien.
 
 | Rating | Vaikutusarvo | Muutos |
 |---|---|---|
@@ -90,11 +90,11 @@ Vahvan pelaajan kerroin on suurempi, koska vahva pelaaja ratkaisee peliä enemm�
 
 **Esimerkkejä kolmen pelaajan ketjuista.** Ratingien summat ovat samat, mutta vaikutusarvot eivät ole:
 
-| Ketju 1 | Ketju 2 | Vaikutusarvot | Vahvempi ketju |
+| Ketju 1 | Ketju 2 | Vaikutusarvot | Suurempi vaikutusarvo |
 |---|---|---|---|
-| 5, 1 | 3, 3 | 6,8 – 6,0 | Ketju 1: viitonen ratkaisee enemmän kuin ykkönen heikentää. |
+| 5, 1 | 3, 3 | 6,8 – 6,0 | Ketju 1: ratingin 5 muutos (+2,0) on suurempi kuin ratingin 1 muutos (−1,2). |
 | 5, 2, 2 | 3, 3, 3 | 10,4 – 9,0 | Ketju 1 |
-| 4, 4, 1 | 3, 3, 3 | 8,8 – 9,0 | Ketju 2: ykkösen haitta on suurempi kuin kahden nelosen etu. |
+| 4, 4, 1 | 3, 3, 3 | 8,8 – 9,0 | Ketju 2: ratingin 1 muutos (−1,2) on suurempi kuin kahden ratingin 4 muutos yhteensä (+1,0). |
 | 3,5, 2,5 | 3, 3 | 6,0 – 6,0 | Tasan: keskialueella mikään ei muutu. |
 
 ### Arvonnan vaiheet
@@ -111,9 +111,9 @@ Vaihe 4 on syy, miksi joukkueet vaihtuvat joka viikko. Tasaisia jakoja on yleens
 
 Testasimme algoritmia 200 kuvitteellisella vuorolla, joissa on 20 pelaajaa ja satunnaiset ratingit 1–5. Puolustusten ratingien summa erosi keskimäärin 0,4 pistettä ja hyökkäysten 0,3 pistettä. Ero on koko kentän summa, ei ero pelaajaa kohti.
 
-Ratingin eri päiden pelaajat jakautuivat tasan jokaisessa testivuorossa. Ilman tätä sääntöä noin joka neljännessä vuorossa toisessa joukkueessa oli kaksi vahvaa tai heikkoa pelaajaa enemmän.
+Ratingin eri päiden pelaajat jakautuivat tasan jokaisessa testivuorossa. Ilman tätä sääntöä noin joka neljännessä vuorossa toisessa joukkueessa oli kaksi saman ratingin pään pelaajaa enemmän.
 
-Täysin tasaisia jakoja ei aina ole. Jos vuorossa on esimerkiksi yksi selvästi muita parempi puolustaja, toinen puolustus on aina hieman vahvempi.
+Täysin tasaisia jakoja ei aina ole. Jos vuorossa on esimerkiksi yksi puolustaja, jonka rating on selvästi muita suurempi, puolustusten välille jää aina pieni ero.
 
 ## Arvonta vain kerran
 
@@ -139,7 +139,7 @@ Admin voi kirjata myös lopputuloksen. Lopputulos ei muuta korjausarvoja. Se on 
 
 Vain adminit näkevät arviot ja lopputulokset.
 
-Arvonta käyttää lukua **rating + korjausarvo**. Jos joukkue oli parempi kuin ratingit kertoivat, sen pelaajat olivat todennäköisesti hieman ratingiaan parempia. Siksi heidän korjausarvonsa nousee. Toisen joukkueen pelaajien korjausarvo laskee saman verran.
+Arvonta käyttää lukua **rating + korjausarvo**. Jos joukkue oli parempi kuin ratingit kertoivat, sen pelaajien ratingit olivat todennäköisesti hieman liian pienet. Siksi heidän korjausarvonsa nousee. Toisen joukkueen pelaajien korjausarvo laskee saman verran.
 
 **Esimerkki:** Matin rating on 3. Matti on kolmena viikkona joukkueessa, joka on "selvästi parempi". Matin korjausarvo on silloin +0,30, ja arvonta käyttää Matille lukua 3,3. Jos seuraavalla viikolla Matin joukkue häviää selvästi, korjausarvo laskee lukuun +0,20.
 
