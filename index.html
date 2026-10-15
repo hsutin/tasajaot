@@ -35,9 +35,10 @@
 			</div>
 			<nav id="site-nav" class="admin-nav" aria-label="Sivut">
 				<a class="admin-nav__link" href="#etusivu" data-route="etusivu">Joukkueet</a>
-				<a class="admin-nav__link" href="#tietoa" data-route="tietoa" data-audience="public">Näin jaot tehdään</a>
+				<a class="admin-nav__link" href="#tietoa" data-route="tietoa tarkemmin">Näin jaot tehdään</a>
 				<a class="admin-nav__link" href="#ohjeet" data-route="ohjeet" data-audience="admin" hidden>Ohjeet</a>
 				<a class="admin-nav__link" href="#ukk" data-route="ukk" data-audience="admin" hidden>UKK</a>
+				<a class="admin-nav__link" href="#kayttoonotto" data-route="kayttoonotto" data-audience="admin" hidden>Käyttöönotto</a>
 			</nav>
 			<div class="site-header__auth">
 				<span id="user-email" class="muted" hidden></span>
@@ -50,7 +51,7 @@
 	<main id="main" class="container">
 		<section id="setup-notice" class="card notice" hidden>
 			<h2>Asetukset puuttuvat</h2>
-			<p>Lisää Supabase-projektin osoite ja avain tiedostoon <code>js/config.js</code>. Katso ohjeet tiedostosta <code>README.md</code>.</p>
+			<p>Lisää Supabase-projektin osoite ja avain tiedostoon <code>js/config.js</code>.</p>
 		</section>
 
 		<section id="login-view" class="card" hidden aria-labelledby="login-title">
@@ -70,8 +71,12 @@
 		</section>
 
 		<section id="info-view" class="card guide" aria-labelledby="info-title" hidden>
+			<nav class="subnav" aria-label="Näin jaot tehdään">
+				<a class="subnav__link" href="#tietoa" aria-current="page">Lyhyesti</a>
+				<a class="subnav__link" href="#tarkemmin">Laajemmin selitettynä</a>
+			</nav>
 			<h2 id="info-title">Näin joukkueet arvotaan</h2>
-			<p class="muted">Lyhyt selitys pelaajille. Tarkka kuvaus on <a href="https://github.com/hsutin/tasajaot#readme">sovelluksen README:ssä</a>.</p>
+			<p class="muted">Lyhyt selitys pelaajille. Tarkka kuvaus on sivulla <a href="#tarkemmin">Laajemmin selitettynä</a>.</p>
 
 			<h3>Lyhyesti</h3>
 			<ul>
@@ -123,6 +128,190 @@
 			<p>Kaikki näkevät arvotut joukkueet. Pelaajien tasot ja vuorojen arviot näkevät vain adminit.</p>
 		</section>
 
+		<section id="details-view" class="card guide" aria-labelledby="details-title" hidden>
+			<nav class="subnav" aria-label="Näin jaot tehdään">
+				<a class="subnav__link" href="#tietoa">Lyhyesti</a>
+				<a class="subnav__link" href="#tarkemmin" aria-current="page">Laajemmin selitettynä</a>
+			</nav>
+			<h2 id="details-title">Näin joukkueet arvotaan tarkemmin</h2>
+			<p class="muted">Tasajaot arpoo vuorollemme joukkueet <strong>Valkoinen</strong> ja <strong>Musta</strong> joka viikko. Tämä sivu kertoo, miten arvonta toimii ja miksi joukkueet ovat sellaiset kuin ovat.</p>
+
+			<h3>Lyhyesti</h3>
+			<ul>
+				<li>Jokaisella pelaajalla on pelipaikka ja rating 1–5.</li>
+				<li>Sovellus tekee satoja eri jakoja ja valitsee niistä tasaisimpien joukosta yhden sattumanvaraisesti.</li>
+				<li>Tärkeintä on, että <strong>puolustukset ovat samantasoiset ja hyökkäykset ovat samantasoiset</strong>. Pelkkä yhteissumma ei täysin riitä.</li>
+				<li>Joukkueet arvotaan <strong>vain kerran viikossa</strong>. Kukaan ei voi arpoa uudelleen, jos tulos ei miellytä.</li>
+				<li>Vuoron jälkeen admin arvioi, oliko jako tasainen. Arvio korjaa ratingeja hieman tulevia viikkoja varten.</li>
+			</ul>
+
+			<h3>Pelaajan tiedot</h3>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr><th scope="col">Tieto</th><th scope="col">Selitys</th></tr>
+					</thead>
+					<tbody>
+						<tr><td>Pelipaikka <code>P</code></td><td>Puolustaja</td></tr>
+						<tr><td>Pelipaikka <code>H</code></td><td>Hyökkääjä</td></tr>
+						<tr><td>Pelipaikka <code>PH</code></td><td>Ensisijainen puolustaja, joka voi pelata myös hyökkääjänä</td></tr>
+						<tr><td>Pelipaikka <code>HP</code></td><td>Ensisijainen hyökkääjä, joka voi pelata myös puolustajana</td></tr>
+						<tr><td>Rating 1–5</td><td>Pelaajan taso. Vain adminit näkevät ratingit.</td></tr>
+						<tr><td>Korjausarvo</td><td>Arvioista laskettu pieni korjaus ratingiin (katso alempaa). Vain adminit näkevät korjausarvot.</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<p>Maalivahdit eivät ole mukana arvonnassa, koska he vaihtavat päätyä vuoron aikana.</p>
+
+			<h3>Joukkueiden koko ja kentät</h3>
+			<p><strong>Täysi vuoro (20 kenttäpelaajaa):</strong> Kummassakin joukkueessa on 4 puolustajaa ja 6 hyökkääjää. Vuorossa voi olla enintään 20 kenttäpelaajaa, joten joukkueessa on aina enintään 4 puolustajaa ja 6 hyökkääjää.</p>
+			<p><strong>Vajaa vuoro:</strong></p>
+			<ul>
+				<li>Joukkueissa on yhtä monta pelaajaa. Jos pelaajia on pariton määrä, toinen joukkue saa yhden pelaajan enemmän. Sovellus arpoo, kumpi joukkue.</li>
+				<li>Kun pelaajia on 19, puolustajia on 4 + 3, jotta kummassakin joukkueessa on enintään 6 hyökkääjää.</li>
+				<li>Kun pelaajia on 14–18, kummassakin joukkueessa on <strong>3 puolustajaa</strong>, ja kaikki muut pelaajat ovat hyökkääjiä. Vajaassa vuorossa sovellus vähentää siis ensin puolustajia ja sitten hyökkääjiä, 1–2 joukkuetta kohti.</li>
+				<li>Syy: puolustajamme ovat yleensä hyvässä kunnossa ja kovia luistelijoita. Siksi kolme puolustajaa riittää.</li>
+				<li>Jos pelaajia on alle 14, noin 40 % pelaajista pelaa puolustajina.</li>
+			</ul>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr><th scope="col">Pelaajia</th><th scope="col">Joukkueet</th><th scope="col">Puolustajia</th><th scope="col">Hyökkääjiä</th></tr>
+					</thead>
+					<tbody>
+						<tr><td>20</td><td>10 + 10</td><td>4 + 4</td><td>6 + 6</td></tr>
+						<tr><td>19</td><td>10 + 9</td><td>4 + 3</td><td>6 + 6</td></tr>
+						<tr><td>18</td><td>9 + 9</td><td>3 + 3</td><td>6 + 6</td></tr>
+						<tr><td>17</td><td>9 + 8</td><td>3 + 3</td><td>6 + 5</td></tr>
+						<tr><td>16</td><td>8 + 8</td><td>3 + 3</td><td>5 + 5</td></tr>
+						<tr><td>15</td><td>8 + 7</td><td>3 + 3</td><td>5 + 4</td></tr>
+						<tr><td>14</td><td>7 + 7</td><td>3 + 3</td><td>4 + 4</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<p><strong>Puhtaat pelipaikat menevät sääntöjen edelle:</strong> P-pelaaja pelaa aina puolustajana, ja H-pelaaja pelaa aina hyökkääjänä. Jos esimerkiksi 18 pelaajan vuorossa on 7 P-pelaajaa, puolustajia on 7, ja toisessa joukkueessa on 4 puolustajaa.</p>
+			<p><strong>Kaksi pelipaikkaa (PH ja HP):</strong> Pelaaja pelaa ensin ensisijaisella paikallaan. Jos puolustajia tai hyökkääjiä puuttuu, sovellus siirtää PH- tai HP-pelaajan toiselle paikalle. Sovellus siirtää vain niin monta pelaajaa kuin on pakko.</p>
+
+			<h3>Miten sovellus valitsee tasaiset joukkueet</h3>
+			<p>Sovellus vertaa jokaisessa jaossa näitä asioita tässä järjestyksessä:</p>
+			<ol>
+				<li><strong>Ratingin päät:</strong> pelaajat, joiden rating on vähintään 4,5, ja pelaajat, joiden rating on alle 2. Kummassakin joukkueessa on yhtä monta ratingin yläpään ja yhtä monta ratingin alapään pelaajaa. Jos määrä on pariton, ero on yksi pelaaja.</li>
+				<li><strong>Puolustusten taso:</strong> puolustajien vaikutusarvojen keskiarvo kummassakin joukkueessa.</li>
+				<li><strong>Hyökkäysten taso:</strong> hyökkääjien vaikutusarvojen keskiarvo kummassakin joukkueessa.</li>
+				<li><strong>Joukkueiden kokonaistaso:</strong> kaikkien pelaajien vaikutusarvojen summa.</li>
+				<li><strong>Pelipaikat:</strong> mahdollisimman moni pelaaja pelaa ensisijaisella paikallaan.</li>
+			</ol>
+			<p>Kentät ovat tärkeämmät kuin kokonaistaso, jotta puolustusten ero ei voi tasoittaa hyökkäysten eroa. Kun kentät ovat tasaiset, myös kokonaistaso on tasainen.</p>
+			<p>Sovellus vertaa kenttien keskiarvoja, ei summia. Jos joukkueessa on 3 puolustajaa ja toisessa 4, summien vertailu antaisi väärän tuloksen.</p>
+
+			<h3>Ratingin ääripäät</h3>
+			<p>Ratingin ääripäiden pelaajat vaikuttavat joukkueen tasoon yleensä enemmän kuin ratingin keskiarvolle osuvat pelaajat. Pelaajat, joiden rating on lähellä keskiarvoa 3, eivät vaikuta yhtä ratkaisevasti yleensä suuntaan tai toiseen.</p>
+			<p>Siksi sovellus ei vertaa ratingeja suoraan. Se muuttaa jokaisen ratingin <strong>vaikutusarvoksi</strong>:</p>
+			<ul>
+				<li>e = rating − 3</li>
+				<li>vaikutusarvo = 3 + e × (1 + k × |e|)</li>
+				<li>k on 0,5, kun rating on yli 3, ja 0,3, kun rating on alle 3.</li>
+			</ul>
+			<p>Ratingin alapäässä kerroin on pienempi. Siksi alapään ratingien vaikutusarvo muuttuu maltillisemmin kuin yläpään ratingien.</p>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr><th scope="col">Rating</th><th scope="col">Vaikutusarvo</th><th scope="col">Muutos</th></tr>
+					</thead>
+					<tbody>
+						<tr><td>5,0</td><td>7,0</td><td>+2,0</td></tr>
+						<tr><td>4,5</td><td>5,6</td><td>+1,1</td></tr>
+						<tr><td>4,0</td><td>4,5</td><td>+0,5</td></tr>
+						<tr><td>3,5</td><td>3,6</td><td>+0,1</td></tr>
+						<tr><td>3,0</td><td>3,0</td><td>0</td></tr>
+						<tr><td>2,5</td><td>2,4</td><td>−0,1</td></tr>
+						<tr><td>2,0</td><td>1,7</td><td>−0,3</td></tr>
+						<tr><td>1,5</td><td>0,8</td><td>−0,7</td></tr>
+						<tr><td>1,0</td><td>−0,2</td><td>−1,2</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<p><strong>Esimerkkejä kolmen pelaajan ketjuista.</strong> Ratingien summat ovat samat, mutta vaikutusarvot eivät ole:</p>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr><th scope="col">Ketju 1</th><th scope="col">Ketju 2</th><th scope="col">Vaikutusarvot</th><th scope="col">Suurempi vaikutusarvo</th></tr>
+					</thead>
+					<tbody>
+						<tr><td>5, 1</td><td>3, 3</td><td>6,8 – 6,0</td><td>Ketju 1: ratingin 5 muutos (+2,0) on suurempi kuin ratingin 1 muutos (−1,2).</td></tr>
+						<tr><td>5, 2, 2</td><td>3, 3, 3</td><td>10,4 – 9,0</td><td>Ketju 1</td></tr>
+						<tr><td>4, 4, 1</td><td>3, 3, 3</td><td>8,8 – 9,0</td><td>Ketju 2: ratingin 1 muutos (−1,2) on suurempi kuin kahden ratingin 4 muutos yhteensä (+1,0).</td></tr>
+						<tr><td>3,5, 2,5</td><td>3, 3</td><td>6,0 – 6,0</td><td>Tasan: keskialueella mikään ei muutu.</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<h3>Arvonnan vaiheet</h3>
+			<ol>
+				<li>Sovellus jakaa pelaajat joukkueisiin satunnaisesti, mutta oikeilla määrillä (esimerkiksi 4 + 6 ja 4 + 6).</li>
+				<li>Sovellus vaihtaa kahden pelaajan paikkaa, jos vaihto tekee joukkueista tasaisemmat. Se jatkaa, kunnes mikään vaihto ei enää auta.</li>
+				<li>Sovellus toistaa vaiheet 1 ja 2 noin 300 kertaa. Näin se löytää paljon eri jakoja.</li>
+				<li>Sovellus valitsee kaikista jaoista tasaisimmat. Niistä se arpoo yhden.</li>
+				<li>Sovellus arpoo, kumpi joukkue on Valkoinen ja kumpi Musta.</li>
+			</ol>
+			<p>Vaihe 4 on syy, miksi joukkueet vaihtuvat joka viikko. Tasaisia jakoja on yleensä kymmeniä, ja kaikki ovat yhtä hyviä. Jos sovellus valitsisi aina saman jaon, samat pelaajat olisivat joka viikko samassa joukkueessa.</p>
+
+			<h3>Kuinka tasaisia joukkueet ovat?</h3>
+			<p>Testasimme algoritmia 200 kuvitteellisella vuorolla, joissa on 20 pelaajaa ja satunnaiset ratingit 1–5. Puolustusten ratingien summa erosi keskimäärin 0,4 pistettä ja hyökkäysten 0,3 pistettä. Ero on koko kentän summa, ei ero pelaajaa kohti.</p>
+			<p>Ratingin eri päiden pelaajat jakautuivat tasan jokaisessa testivuorossa. Ilman tätä sääntöä noin joka neljännessä vuorossa toisessa joukkueessa oli kaksi saman ratingin pään pelaajaa enemmän.</p>
+			<p>Täysin tasaisia jakoja ei aina ole. Jos vuorossa on esimerkiksi yksi puolustaja, jonka rating on selvästi muita suurempi, puolustusten välille jää aina pieni ero.</p>
+
+			<h3>Arvonta vain kerran</h3>
+			<p>Admin valitsee viikon pelaajat ja arpoo joukkueet. Tietokanta sallii vain yhden arvonnan jokaista viikkoa kohti. Kun joukkueet on arvottu, kukaan ei voi muuttaa niitä sovelluksessa. Admin ei siis voi arpoa uudelleen, jos hän ei pidä tuloksesta.</p>
+			<p>Admin näkee arvonnan tuloksen vasta, kun se on tallennettu.</p>
+			<p><strong>Testiarvonta:</strong> Adminit voivat kokeilla arvontaa testiarvonnalla. Sovellus ei tallenna testiarvontaa, eikä kukaan muu näe sitä. Testiarvonnan kuvassa lukee ”TESTI – EI TALLENNETTU”. Vain tallennettu arvonta on voimassa.</p>
+
+			<h3>Arvio vuoron jälkeen ja korjausarvo</h3>
+			<p>Rating on ihmisen arvio, eikä se ole aina oikea. Siksi admin arvioi vuoron jälkeen, olivatko joukkueet tasaiset:</p>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr><th scope="col">Arvio</th><th scope="col">Vaikutus Valkoisen pelaajiin</th><th scope="col">Vaikutus Mustan pelaajiin</th></tr>
+					</thead>
+					<tbody>
+						<tr><td>Valkoinen selvästi parempi</td><td>+0,10</td><td>−0,10</td></tr>
+						<tr><td>Valkoinen hieman parempi</td><td>+0,05</td><td>−0,05</td></tr>
+						<tr><td>Tasainen</td><td>0</td><td>0</td></tr>
+						<tr><td>Musta hieman parempi</td><td>−0,05</td><td>+0,05</td></tr>
+						<tr><td>Musta selvästi parempi</td><td>−0,10</td><td>+0,10</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<p>Admin voi kirjata myös lopputuloksen. Lopputulos ei muuta korjausarvoja. Se on vain tilastoa varten.</p>
+			<p>Vain adminit näkevät arviot ja lopputulokset.</p>
+			<p>Arvonta käyttää lukua <strong>rating + korjausarvo</strong>. Jos joukkue oli parempi kuin ratingit kertoivat, sen pelaajien ratingit olivat todennäköisesti hieman liian pienet. Siksi heidän korjausarvonsa nousee. Toisen joukkueen pelaajien korjausarvo laskee saman verran.</p>
+			<p><strong>Esimerkki:</strong> Matin rating on 3. Matti on kolmena viikkona joukkueessa, joka on ”selvästi parempi”. Matin korjausarvo on silloin +0,30, ja arvonta käyttää Matille lukua 3,3. Jos seuraavalla viikolla Matin joukkue häviää selvästi, korjausarvo laskee lukuun +0,20.</p>
+			<p><strong>Rajat:</strong></p>
+			<ul>
+				<li>Yksi vuoro muuttaa korjausarvoa enintään 0,10.</li>
+				<li>Korjausarvo on aina välillä −1 ja +1.</li>
+				<li>Jokaisen vuoron voi arvioida vain kerran.</li>
+				<li>Admin voi nollata pelaajan korjausarvon, esimerkiksi silloin kun hän muuttaa ratingia käsin.</li>
+			</ul>
+			<p><strong>Miksi muutokset ovat pieniä?</strong> Yksi peli kertoo vähän. Tulokseen vaikuttavat esimerkiksi maalivahdit, väsymys ja sattuma. Yksittäinen ilta ei siksi saa muuttaa ratingeja paljon. Korjausarvot alkavat kertoa jotain luotettavaa vasta noin 10–20 vuoron jälkeen. Silloin sama pelaaja on ollut monta kertaa eri pelaajien kanssa samassa joukkueessa.</p>
+
+			<h3>Kuka näkee mitä</h3>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr><th scope="col">Tieto</th><th scope="col">Kaikki</th><th scope="col">Adminit</th></tr>
+					</thead>
+					<tbody>
+						<tr><td>Arvotut joukkueet</td><td>✓</td><td>✓</td></tr>
+						<tr><td>Arvio ja lopputulos</td><td></td><td>✓</td></tr>
+						<tr><td>Pelaajien ratingit</td><td></td><td>✓</td></tr>
+						<tr><td>Pelaajien korjausarvot</td><td></td><td>✓</td></tr>
+						<tr><td>Joukkueiden ratingien summat</td><td></td><td>✓</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
 		<section id="help-view" class="card guide" aria-labelledby="help-title" hidden>
 			<h2 id="help-title">Adminin ohjeet</h2>
 			<p class="muted">Lyhyet ohjeet sivuston käyttöön. Tavallisimmat tilanteet ovat <a href="#ukk">UKK:ssa</a>.</p>
@@ -162,7 +351,7 @@
 			</ul>
 
 			<h3>Mitä pelaajat näkevät</h3>
-			<p>Kirjautumaton käyttäjä näkee vain arvotut joukkueet. Ratingit, korjausarvot ja arviot näkyvät vain adminille. Arvonnan logiikka pelaajille on <a href="https://github.com/hsutin/tasajaot#readme">README:ssä</a>.</p>
+			<p>Kirjautumaton käyttäjä näkee vain arvotut joukkueet. Ratingit, korjausarvot ja arviot näkyvät vain adminille. Arvonnan logiikka pelaajille on sivulla <a href="#tarkemmin">Näin jaot tehdään &gt; Laajemmin selitettynä</a>.</p>
 		</section>
 
 		<section id="faq-view" class="card guide" aria-labelledby="faq-title" hidden>
@@ -266,8 +455,112 @@
 			</details>
 			<details>
 				<summary>Miten lisään uuden adminin?</summary>
-				<p>Adminit lisätään Supabasessa: tee käyttäjä kohdassa <em>Authentication &gt; Users</em> ja lisää käyttäjä tauluun <code>admins</code>. Tarkat ohjeet ovat tiedostossa <a href="https://github.com/hsutin/tasajaot/blob/main/KAYTTOONOTTO.md">KAYTTOONOTTO.md</a>.</p>
+				<p>Adminit lisätään Supabasessa: tee käyttäjä kohdassa <em>Authentication &gt; Users</em> ja lisää käyttäjä tauluun <code>admins</code>. Tarkat ohjeet ovat sivulla <a href="#kayttoonotto">Käyttöönotto</a>.</p>
 			</details>
+		</section>
+
+		<section id="setup-view" class="card guide" aria-labelledby="setup-title" hidden>
+			<h2 id="setup-title">Käyttöönotto ja ylläpito</h2>
+			<p class="muted">Tekniset ohjeet ylläpitäjille. Viikoittaisen käytön ohjeet ovat <a href="#ohjeet">Ohjeissa</a>.</p>
+			<ul>
+				<li>Sivu on staattinen. GitHub Pages näyttää sen.</li>
+				<li>Supabase (ilmainen) tallentaa pelaajat ja arvonnat ja hoitaa kirjautumisen.</li>
+				<li>Vain adminit näkevät pelaajat ja ratingit. Kaikki näkevät arvotut joukkueet.</li>
+				<li>Yhdelle viikolle voi arpoa joukkueet vain kerran. Tietokanta estää toisen arvonnan.</li>
+			</ul>
+
+			<h3>1. Tee Supabase-projekti</h3>
+			<ol>
+				<li>Kirjaudu osoitteessa <a href="https://supabase.com">supabase.com</a> ja tee uusi projekti (Free-taso riittää).</li>
+				<li>Avaa <em>SQL Editor</em>, liitä tiedoston <code>supabase/schema.sql</code> sisältö ja valitse <em>Run</em>.</li>
+				<li>Avaa <em>Authentication &gt; Sign In / Providers</em>. Poista <em>Allow new users to sign up</em> käytöstä, jotta vieraat eivät voi tehdä tunnuksia.</li>
+				<li>Avaa <em>Authentication &gt; Users &gt; Add user &gt; Create new user</em>. Tee tunnus jokaiselle adminille (sähköposti ja salasana). Valitse <em>Auto Confirm User</em>.</li>
+				<li>Lisää adminit tauluun <code>admins</code>. Avaa <em>SQL Editor</em> ja aja:
+					<pre><code>insert into public.admins ( user_id )
+select id from auth.users where email in ( 'admin1@example.com', 'admin2@example.com' );</code></pre>
+				</li>
+				<li>Avaa <em>Project Settings &gt; API</em> (tai <em>API Keys</em>). Kopioi <em>Project URL</em> ja <em>anon</em>- tai <em>publishable</em>-avain.</li>
+			</ol>
+
+			<h3>2. Lisää asetukset</h3>
+			<p>Kirjoita arvot tiedostoon <code>js/config.js</code>:</p>
+			<pre><code>export const SUPABASE_URL = 'https://abcdefgh.supabase.co';
+export const SUPABASE_KEY = 'eyJhbGciOi...';</code></pre>
+			<p>Voit tallentaa nämä arvot julkiseen repoon. Tietokannan säännöt (RLS) suojaavat datan.</p>
+			<p>Kirjoita sama Project URL myös tiedoston <code>index.html</code> Content Security Policyyn, kohtaan <code>connect-src</code>. Muuten selain estää yhteyden Supabaseen.</p>
+			<p class="guide__warning"><strong>Varoitus:</strong> Älä koskaan laita <code>service_role</code>- tai <code>secret</code>-avainta tähän tiedostoon. Sillä avaimella kuka tahansa voi lukea ja muuttaa kaiken datan.</p>
+
+			<h3>3. Julkaise GitHub Pagesissa</h3>
+			<ol>
+				<li>Tee GitHubiin uusi repo (esimerkiksi <code>tasajaot</code>) ja lähetä projektin tiedostot sinne.</li>
+				<li>Avaa repossa <em>Settings &gt; Pages</em>.</li>
+				<li>Valitse <em>Source: Deploy from a branch</em>, haara <code>main</code> ja kansio <code>/ (root)</code>.</li>
+				<li>Sivu on hetken kuluttua osoitteessa <code>https://&lt;käyttäjä&gt;.github.io/tasajaot/</code>.</li>
+				<li>Lisää tämä osoite Supabaseen: <em>Authentication &gt; URL Configuration &gt; Site URL</em>.</li>
+			</ol>
+
+			<h3>4. Tuo pelaajat</h3>
+			<ol>
+				<li>Kirjaudu sivulla admin-tunnuksella.</li>
+				<li>Avaa välilehti <em>Pelaajat</em> ja valitse Excel-tiedosto.</li>
+			</ol>
+			<p>Excel-tiedoston ensimmäisellä välilehdellä pitää olla nämä sarakkeet (otsikkorivi ensimmäisellä rivillä):</p>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr>
+							<th scope="col">nimi</th>
+							<th scope="col">pelipaikka</th>
+							<th scope="col">rating</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><td>Matti Meikäläinen</td><td>P</td><td>4</td></tr>
+						<tr><td>Teemu Teikäläinen</td><td>HP</td><td>3,5</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<p>Sovellus päivittää pelaajat, joilla on sama nimi, ja lisää uudet pelaajat. Se ei poista pelaajia, jotka puuttuvat tiedostosta.</p>
+
+			<h3>Arvonnan poisto</h3>
+			<p>Jos arvonta on pakko tehdä uudelleen (esimerkiksi väärä päivä), poista rivi Supabasessa: <em>Table Editor &gt; draws</em>. Sovellus ei voi poistaa arvontoja.</p>
+
+			<h3>Tietokannan päivitys</h3>
+			<p>Kun sovellukseen tulee uusia ominaisuuksia, myös tietokanta voi muuttua. Aja silloin tiedosto <code>supabase/schema.sql</code> uudelleen Supabasen SQL Editorissa. Tiedoston voi ajaa monta kertaa. Se lisää vain puuttuvat osat, eikä se poista dataa.</p>
+			<p><strong>Huom:</strong> Arvio-ominaisuus vaatii tämän päivityksen. Jos ajoit <code>schema.sql</code>:n ennen arvio-ominaisuutta, aja se uudelleen. Arviot ovat taulussa <code>draw_evaluations</code>, ja vain adminit voivat lukea sen.</p>
+
+			<h3>Kehitys</h3>
+			<p>Sivu ei tarvitse käännöstä. Käynnistä paikallinen palvelin projektin kansiossa:</p>
+			<pre><code>python3 -m http.server 8000</code></pre>
+			<p>Avaa sitten <code>http://localhost:8000</code>.</p>
+			<p>Aja arvonta-algoritmin testit (Node 20 tai uudempi):</p>
+			<pre><code>npm test</code></pre>
+
+			<h3>Tiedostot</h3>
+			<div class="table-wrap">
+				<table class="info-table">
+					<thead>
+						<tr>
+							<th scope="col">Tiedosto</th>
+							<th scope="col">Sisältö</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><td><code>README.md</code></td><td>Arvonnan logiikka pelaajille</td></tr>
+						<tr><td><code>index.html</code></td><td>Sivun rakenne ja ohjesivut</td></tr>
+						<tr><td><code>assets/logo.png</code></td><td>Joukkueen logo</td></tr>
+						<tr><td><code>css/style.css</code></td><td>Tyylit</td></tr>
+						<tr><td><code>js/app.js</code></td><td>Käyttöliittymä ja Supabase-kutsut</td></tr>
+						<tr><td><code>js/draw.js</code></td><td>Arvonta-algoritmi</td></tr>
+						<tr><td><code>js/image.js</code></td><td>WhatsApp-kuvan teko ja jako</td></tr>
+						<tr><td><code>js/excel.js</code></td><td>Excel-tuonti</td></tr>
+						<tr><td><code>js/config.js</code></td><td>Supabase-asetukset</td></tr>
+						<tr><td><code>js/vendor/</code></td><td>Kirjastojen paikalliset kopiot (Supabase ja SheetJS)</td></tr>
+						<tr><td><code>supabase/schema.sql</code></td><td>Tietokannan taulut ja oikeudet</td></tr>
+						<tr><td><code>tests/draw.test.mjs</code></td><td>Algoritmin testit</td></tr>
+					</tbody>
+				</table>
+			</div>
 		</section>
 
 		<section id="draw-view" class="card" aria-labelledby="draw-title">
@@ -452,7 +745,7 @@
 				<ul class="site-footer__list">
 					<li><a href="https://seminaarinmaensenators.nimenhuuto.com/">Nimenhuuto</a></li>
 					<li><a href="https://tulospalvelu.leijonat.fi/serie?lang=fi&season=2027&lid=71&did=3&ssid=4548">Tulospalvelu (Finhockey)</a></li>
-					<li><a href="https://github.com/hsutin/tasajaot#readme">Miten joukkueet arvotaan</a></li>
+					<li><a href="#tietoa">Näin jaot tehdään</a></li>
 				</ul>
 			</nav>
 		</div>

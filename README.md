@@ -2,8 +2,6 @@
 
 Tasajaot on sovellus, joka arpoo vuorollemme joukkueet **Valkoinen** ja **Musta** joka viikko. Tämä sivu kertoo, miten arvonta toimii ja miksi joukkueet ovat sellaiset kuin ovat.
 
-Ylläpitäjän ohjeet ovat tiedostossa [KAYTTOONOTTO.md](KAYTTOONOTTO.md).
-
 ## Lyhyesti
 
 - Jokaisella pelaajalla on pelipaikka ja rating 1–5.

@@ -26,8 +26,10 @@ const elements = Object.fromEntries(
 		'setup-notice',
 		'site-nav',
 		'info-view',
+		'details-view',
 		'help-view',
 		'faq-view',
+		'setup-view',
 		'draw-view',
 		'login-toggle',
 		'logout-button',
@@ -892,11 +894,13 @@ async function runDraw() {
 
 // ---------- Admin pages ----------
 
-// "public" pages are for users who are not admins. "admin" pages are only for admins.
+// "public" pages are for users who are not admins. "admin" pages are only for admins. "all" pages are for all users.
 const PAGES = {
-	tietoa: { element: 'infoView', audience: 'public' },
+	tietoa: { element: 'infoView', audience: 'all' },
+	tarkemmin: { element: 'detailsView', audience: 'all' },
 	ohjeet: { element: 'helpView', audience: 'admin' },
 	ukk: { element: 'faqView', audience: 'admin' },
+	kayttoonotto: { element: 'setupView', audience: 'admin' },
 };
 const HOME_ROUTE = 'etusivu';
 let currentRoute = HOME_ROUTE;
@@ -914,7 +918,8 @@ function renderRoute() {
 	const route = routeFromHash();
 	const audience = state.isAdmin ? 'admin' : 'public';
 	// A page for the other audience shows the teams.
-	const page = PAGES[ route ]?.audience === audience ? route : HOME_ROUTE;
+	const pageAudience = PAGES[ route ]?.audience;
+	const page = pageAudience === audience || pageAudience === 'all' ? route : HOME_ROUTE;
 
 	for ( const [ pageRoute, { element } ] of Object.entries( PAGES ) ) {
 		elements[ element ].hidden = page !== pageRoute;
@@ -926,7 +931,8 @@ function renderRoute() {
 		link.hidden = link.dataset.audience !== audience;
 	}
 	for ( const link of elements.siteNav.querySelectorAll( '[data-route]' ) ) {
-		if ( link.dataset.route === page ) {
+		// One link can have more than one route, for example a page and its subpages.
+		if ( link.dataset.route.split( ' ' ).includes( page ) ) {
 			link.setAttribute( 'aria-current', 'page' );
 		} else {
 			link.removeAttribute( 'aria-current' );
