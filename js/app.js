@@ -1,5 +1,5 @@
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
-import { drawTeams, lineTargets, wantedDefenders, MAX_PLAYERS, POSITIONS } from './draw.js';
+import { drawTeams, lineTargets, wantedDefenders, MAX_PLAYERS, POSITIONS, EXCEPTIONAL_RATING } from './draw.js';
 import { renderTeamsImage, shareCanvas, downloadCanvas, formatDate, prepareImageAssets, ROLE_LABELS } from './image.js';
 import { readPlayersFile, normalizeName, parseRating } from './excel.js';
 
@@ -165,8 +165,13 @@ function formatAdjustment( value ) {
 }
 
 // The draw uses the rating with the correction value from the evaluations.
+// An exceptional player gets the rating EXCEPTIONAL_RATING. The draw ignores the rating that the admin gave.
+function baseRating( player ) {
+	return player.exceptional ? EXCEPTIONAL_RATING : player.rating;
+}
+
 function effectiveRating( player ) {
-	return player.rating + player.adjustment;
+	return baseRating( player ) + player.adjustment;
 }
 
 function fileNameForDraw( draw ) {
@@ -432,7 +437,7 @@ async function login( event ) {
 // ---------- Players ----------
 
 async function loadPlayers() {
-	const { data, error } = await supabase.from( 'players' ).select( 'id, name, position, rating, adjustment' ).order( 'name' );
+	const { data, error } = await supabase.from( 'players' ).select( 'id, name, position, rating, adjustment, exceptional' ).order( 'name' );
 	if ( error ) {
 		showMessage( elements.playerMessage, `Pelaajien haku epäonnistui: ${ error.message }`, 'error' );
 		return;
@@ -441,6 +446,7 @@ async function loadPlayers() {
 		...player,
 		rating: Number( player.rating ),
 		adjustment: Number( player.adjustment ),
+		exceptional: player.exceptional === true,
 	} ) );
 
 	// Removes deleted players from the saved selection.
@@ -539,14 +545,20 @@ function setAllSelected( selected ) {
 }
 
 function playerValues( player ) {
-	return { name: player.name, position: player.position, rating: String( player.rating ) };
+	return {
+		name: player.name,
+		position: player.position,
+		rating: String( player.rating ),
+		exceptional: player.exceptional,
+	};
 }
 
 function isSameValues( first, second ) {
 	return (
 		normalizeName( first.name ) === normalizeName( second.name ) &&
 		first.position === second.position &&
-		Number( first.rating ) === Number( second.rating )
+		Number( first.rating ) === Number( second.rating ) &&
+		first.exceptional === second.exceptional
 	);
 }
 
@@ -589,6 +601,12 @@ function renderPlayersTable() {
 			value: values.rating,
 			required: true,
 			'aria-label': `Rating: ${ player.name }`,
+			disabled: values.exceptional,
+		} );
+		const exceptionalInput = createElement( 'input', {
+			type: 'checkbox',
+			checked: values.exceptional,
+			'aria-label': `Poikkeuksellinen (rating ${ EXCEPTIONAL_RATING }): ${ player.name }`,
 		} );
 		const deleteButton = createElement( 'button', {
 			type: 'button',
@@ -600,7 +618,13 @@ function renderPlayersTable() {
 
 		const row = createElement( 'tr', {} );
 		const onEdit = () => {
-			const edited = { name: nameInput.value, position: positionSelect.value, rating: ratingInput.value };
+			ratingInput.disabled = exceptionalInput.checked;
+			const edited = {
+				name: nameInput.value,
+				position: positionSelect.value,
+				rating: ratingInput.value,
+				exceptional: exceptionalInput.checked,
+			};
 			if ( isSameValues( edited, playerValues( player ) ) ) {
 				state.playerEdits.delete( player.id );
 			} else {
@@ -612,6 +636,7 @@ function renderPlayersTable() {
 		nameInput.addEventListener( 'input', onEdit );
 		positionSelect.addEventListener( 'change', onEdit );
 		ratingInput.addEventListener( 'input', onEdit );
+		exceptionalInput.addEventListener( 'change', onEdit );
 
 		const adjustmentCell = createElement( 'td', { className: 'players-table__adjustment' }, [
 			createElement( 'span', {
@@ -635,6 +660,7 @@ function renderPlayersTable() {
 			createElement( 'td', {}, [ nameInput ] ),
 			createElement( 'td', {}, [ positionSelect ] ),
 			createElement( 'td', {}, [ ratingInput ] ),
+			createElement( 'td', { className: 'players-table__exceptional' }, [ exceptionalInput ] ),
 			adjustmentCell,
 			createElement( 'td', { className: 'players-table__actions' }, [ deleteButton ] )
 		);
@@ -656,7 +682,7 @@ function validatePlayerInput( input ) {
 	if ( rating === null ) {
 		return { error: 'Ratingin pitää olla 1–5.' };
 	}
-	return { player: { name, position: input.position, rating } };
+	return { player: { name, position: input.position, rating, exceptional: input.exceptional === true } };
 }
 
 function databaseErrorText( error ) {
@@ -673,6 +699,7 @@ async function addPlayer( event ) {
 		name: form.get( 'name' ),
 		position: form.get( 'position' ),
 		rating: form.get( 'rating' ),
+		exceptional: form.get( 'exceptional' ) === 'on',
 	} );
 	if ( validationError ) {
 		showMessage( elements.playerMessage, validationError, 'error' );

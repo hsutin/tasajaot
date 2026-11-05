@@ -206,3 +206,8 @@ $$;
 
 revoke execute on function public.evaluate_draw( bigint, smallint, smallint, smallint ) from public, anon;
 grant execute on function public.evaluate_draw( bigint, smallint, smallint, smallint ) to authenticated;
+
+-- ---------- Exceptional player ----------
+-- An exceptional player is clearly better than the rating 5. The draw uses the rating 6 for this player
+-- and ignores the value in the "rating" column. The "rating" column stays 1–5, so the admin can remove the mark.
+alter table public.players add column if not exists exceptional boolean not null default false;

@@ -1,6 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { drawTeams, lineTargets, wantedDefenders, canPlay, normalizePosition, impactValue } from '../js/draw.js';
+import {
+	drawTeams,
+	lineTargets,
+	wantedDefenders,
+	canPlay,
+	normalizePosition,
+	impactValue,
+	markLowestPlayers,
+	EXCEPTIONAL_RATING,
+} from '../js/draw.js';
 
 // Deterministic random generator, so a failed test gives the same result again.
 function seededRandom( seed ) {
@@ -168,3 +177,46 @@ test( 'strong and weak players are divided evenly', () => {
 function shuffleRatings( ratings, random ) {
 	return [ ...ratings ].sort( () => random() - 0.5 );
 }
+
+function teamOf( draw, id ) {
+	return draw.white.some( ( member ) => member.id === id ) ? 'white' : 'black';
+}
+
+test( 'markLowestPlayers marks the lowest rating only when the shift has an exceptional player', () => {
+	const players = [
+		{ id: 1, rating: EXCEPTIONAL_RATING, exceptional: true },
+		{ id: 2, rating: 2 },
+		{ id: 3, rating: 2 },
+		{ id: 4, rating: 3 },
+	];
+	assert.deepEqual(
+		markLowestPlayers( players ).map( ( player ) => player.lowest ),
+		[ false, true, true, false ]
+	);
+	assert.deepEqual(
+		markLowestPlayers( players.slice( 1 ) ).map( ( player ) => player.lowest ),
+		[ false, false, false ]
+	);
+} );
+
+test( 'the lowest-rating player goes to the team of the exceptional player', () => {
+	for ( let seed = 1; seed <= 30; seed++ ) {
+		const random = seededRandom( seed );
+		const players = makePlayers( FULL_SHIFT, random ).map( ( player ) => ( {
+			...player,
+			rating: 2 + Math.floor( random() * 3 ),
+		} ) );
+		players[ 12 ] = { ...players[ 12 ], rating: EXCEPTIONAL_RATING, exceptional: true };
+		players[ 3 ] = { ...players[ 3 ], rating: 1 };
+
+		const draw = drawTeams( players, { random: seededRandom( seed + 100 ), restarts: 60 } );
+		assert.equal( teamOf( draw, players[ 3 ].id ), teamOf( draw, players[ 12 ].id ), `seed ${ seed }` );
+
+		// The lines must stay even: the line averages of the impact values differ by less than 1.
+		const { white, black } = draw.stats;
+		const defenceGap = Math.abs( white.defenceImpact / white.defenders - black.defenceImpact / black.defenders );
+		const forwardGap = Math.abs( white.forwardImpact / white.forwards - black.forwardImpact / black.forwards );
+		assert.ok( defenceGap < 1, `seed ${ seed }: defence gap ${ defenceGap }` );
+		assert.ok( forwardGap < 1, `seed ${ seed }: forward gap ${ forwardGap }` );
+	}
+} );

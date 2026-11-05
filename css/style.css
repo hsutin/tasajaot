@@ -188,7 +188,7 @@ code {
 
 @media (min-width: 640px) {
 	.form--row {
-		grid-template-columns: 2fr 1fr 1fr auto;
+		grid-template-columns: 2fr 1fr 1fr auto auto;
 		align-items: end;
 	}
 }
@@ -201,6 +201,20 @@ code {
 
 .field--inline {
 	display: inline-grid;
+}
+
+.field--check {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 40px;
+}
+
+.field--check input,
+.players-table__exceptional input {
+	width: 22px;
+	height: 22px;
+	accent-color: var(--color-accent);
 }
 
 input,

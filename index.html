@@ -157,6 +157,7 @@
 						<tr><td>Pelipaikka <code>PH</code></td><td>Ensisijainen puolustaja, joka voi pelata myös hyökkääjänä</td></tr>
 						<tr><td>Pelipaikka <code>HP</code></td><td>Ensisijainen hyökkääjä, joka voi pelata myös puolustajana</td></tr>
 						<tr><td>Rating 1–5</td><td>Pelaajan taso. Vain adminit näkevät ratingit.</td></tr>
+						<tr><td>Poikkeuksellinen</td><td>Pelaaja, joka on selvästi parempi kuin rating 5. Arvonta käyttää hänelle ratingia 6. Vain adminit näkevät tämän tiedon.</td></tr>
 						<tr><td>Korjausarvo</td><td>Arvioista laskettu pieni korjaus ratingiin (katso alempaa). Vain adminit näkevät korjausarvot.</td></tr>
 					</tbody>
 				</table>
@@ -344,6 +345,7 @@
 			<ul>
 				<li><strong>Pelipaikat:</strong> <code>P</code> puolustaja, <code>H</code> hyökkääjä, <code>PH</code> ensisijainen puolustaja, joka voi pelata myös hyökkääjänä, <code>HP</code> ensisijainen hyökkääjä, joka voi pelata myös puolustajana.</li>
 				<li><strong>Rating:</strong> 1–5, puolikkaat sallittu. Vain adminit näkevät ratingit.</li>
+				<li><strong>Poikkeuksellinen:</strong> Merkitse tämä pelaajalle, joka on selvästi parempi kuin rating 5. Arvonta käyttää hänelle lukua 6 + korjaus ja ohittaa annetun ratingin. Kun poistat merkinnän, annettu rating on taas käytössä. Arvonta yrittää laittaa vuoron pienimmän ratingin pelaajan samaan joukkueeseen poikkeuksellisen pelaajan kanssa.</li>
 				<li><strong>Korjaus:</strong> Arviot muuttavat korjausarvoa automaattisesti, enintään 0,10 vuorossa. Arvonta käyttää lukua rating + korjaus.</li>
 				<li><strong>Muokkaus:</strong> Muuta tietoja välilehdellä <em>Pelaajat</em>. Voit muuttaa monta pelaajaa kerralla. Valitse lopuksi <em>Tallenna muutokset</em>.</li>
 				<li><strong>Excel-tuonti:</strong> Sarakkeet <code>nimi</code>, <code>pelipaikka</code> ja <code>rating</code>. Sovellus päivittää samannimiset pelaajat ja lisää uudet. Se ei poista pelaajia.</li>
@@ -689,6 +691,10 @@ export const SUPABASE_KEY = 'eyJhbGciOi...';</code></pre>
 						<span>Rating</span>
 						<input name="rating" type="number" min="1" max="5" step="0.5" value="3" required>
 					</label>
+					<label class="field field--check">
+						<input name="exceptional" type="checkbox">
+						<span>Poikkeuksellinen</span>
+					</label>
 					<button class="button" type="submit">Lisää</button>
 				</form>
 				<p id="player-message" class="message" role="status" aria-live="polite"></p>
@@ -709,6 +715,7 @@ export const SUPABASE_KEY = 'eyJhbGciOi...';</code></pre>
 								<th scope="col">Nimi</th>
 								<th scope="col">Pelipaikka</th>
 								<th scope="col">Rating</th>
+								<th scope="col">Poikkeuksellinen</th>
 								<th scope="col">Korjaus</th>
 								<th scope="col"><span class="visually-hidden">Toiminnot</span></th>
 							</tr>

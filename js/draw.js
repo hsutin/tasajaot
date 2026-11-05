@@ -18,6 +18,14 @@ const WEIGHT_EXTREMES = 15;
 export const STRONG_RATING = 4.5;
 export const WEAK_RATING = 2;
 
+// An exceptional player is clearly better than the rating scale 1–5 can tell.
+// The draw uses this rating for the player, not the rating that the admin gave.
+export const EXCEPTIONAL_RATING = 6;
+
+// The draw tries to put the player with the lowest rating in the same team as the exceptional player.
+// This weight is equal to the extremes weight, so the line balance can still win a large difference.
+const WEIGHT_PARTNER = 15;
+
 // The impact value increases the distance from the middle rating 3.
 // A strong player has a larger effect than a weak player, so the upward factor is larger.
 const IMPACT_MIDDLE = 3;
@@ -198,6 +206,8 @@ export function teamStats( players, state ) {
 		forwardImpact: 0,
 		strongPlayers: 0,
 		weakPlayers: 0,
+		exceptionalPlayers: 0,
+		lowestPlayers: 0,
 		secondaryRoles: 0,
 	} ) );
 
@@ -221,6 +231,12 @@ export function teamStats( players, state ) {
 		if ( player.rating < WEAK_RATING ) {
 			team.weakPlayers++;
 		}
+		if ( player.exceptional ) {
+			team.exceptionalPlayers++;
+		}
+		if ( player.lowest ) {
+			team.lowestPlayers++;
+		}
 		if ( state.roles[ index ] !== primaryRole( player.position ) ) {
 			team.secondaryRoles++;
 		}
@@ -233,6 +249,31 @@ export function teamStats( players, state ) {
 function lineDifference( sums, counts ) {
 	const averageCount = ( counts[ 0 ] + counts[ 1 ] ) / 2;
 	return Math.abs( average( sums[ 0 ], counts[ 0 ] ) - average( sums[ 1 ], counts[ 1 ] ) ) * averageCount;
+}
+
+// Number of exceptional players in the team that do not have a lowest-rating player in the same team.
+function missingPartners( team ) {
+	if ( team.exceptionalPlayers === 0 || team.lowestPlayers > 0 ) {
+		return 0;
+	}
+	return team.exceptionalPlayers;
+}
+
+/**
+ * Marks the players with the lowest rating, if the shift has an exceptional player.
+ * Exceptional players cannot be a partner. If many players have the same lowest rating,
+ * all of them are partner candidates, so the draw can still give different teams.
+ */
+export function markLowestPlayers( players ) {
+	const others = players.filter( ( player ) => ! player.exceptional );
+	if ( others.length === 0 || others.length === players.length ) {
+		return players.map( ( player ) => ( { ...player, lowest: false } ) );
+	}
+	const lowestRating = Math.min( ...others.map( ( player ) => player.rating ) );
+	return players.map( ( player ) => ( {
+		...player,
+		lowest: ! player.exceptional && player.rating === lowestRating,
+	} ) );
 }
 
 function cost( players, state ) {
@@ -251,7 +292,8 @@ function cost( players, state ) {
 				[ teamZero.forwardImpact, teamOne.forwardImpact ],
 				[ teamZero.forwards, teamOne.forwards ]
 			) +
-		WEIGHT_SECONDARY_ROLE * ( teamZero.secondaryRoles + teamOne.secondaryRoles );
+		WEIGHT_SECONDARY_ROLE * ( teamZero.secondaryRoles + teamOne.secondaryRoles ) +
+		WEIGHT_PARTNER * ( missingPartners( teamZero ) + missingPartners( teamOne ) );
 
 	// Removes floating point noise, so equal solutions get an equal cost.
 	return Math.round( value * 1000 ) / 1000;
@@ -324,13 +366,16 @@ function compareMembers( first, second ) {
  * The function finds many good solutions and selects one of the best at random.
  * Thus the teams are even, but they are different each week.
  *
- * @param {Array<{id: *, name: string, position: string, rating: number}>} players
+ * The rating of an exceptional player must already be EXCEPTIONAL_RATING (with the adjustment).
+ *
+ * @param {Array<{id: *, name: string, position: string, rating: number, exceptional?: boolean}>} inputPlayers
  * @param {{random?: Function, restarts?: number, tolerance?: number}} options
  */
-export function drawTeams( players, options = {} ) {
+export function drawTeams( inputPlayers, options = {} ) {
 	const { random = Math.random, restarts = 300, tolerance = 0.5 } = options;
 
-	validatePlayers( players );
+	validatePlayers( inputPlayers );
+	const players = markLowestPlayers( inputPlayers );
 	const targets = lineTargets( players );
 	const solutions = new Map();
 
